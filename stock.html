@@ -4,513 +4,603 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Decotara">
   <title>Decotara Stock</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
-      --bg: #F7F5F2;
-      --bg2: #EFEDE9;
-      --card: #FFFFFF;
-      --border: #E2DED9;
-      --text: #1C1A17;
-      --muted: #7A7570;
-      --accent: #8B3A1E;
-      --accent2: #C05A30;
-      --green: #2D6A3F;
-      --green-bg: #E8F5EE;
-      --red: #8B1F1F;
-      --red-bg: #FDEAEA;
-      --orange: #7A4010;
-      --orange-bg: #FDF0E3;
-      --blue: #1A4F7A;
-      --blue-bg: #E3EFF9;
-      --radius: 12px;
-      --radius-sm: 7px;
+      --bg:#F7F5F2; --card:#fff; --border:#E2DED9; --border2:#D0CBC4;
+      --text:#1C1A17; --muted:#7A7570;
+      --accent:#8B3A1E; --accent-light:#FDF0E8;
+      --green:#2D6A3F; --green-bg:#E8F5EE;
+      --red:#8B1F1F; --red-bg:#FDEAEA;
+      --orange:#7A4010; --orange-bg:#FDF0E3;
+      --blue:#1A4F7A; --blue-bg:#E3EFF9;
+      --r:12px; --rs:7px;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: env(safe-area-inset-bottom, 20px); }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:30px}
 
-    .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .logo { font-size: 19px; font-weight: 600; letter-spacing: -0.5px; color: var(--text); }
-    .logo em { color: var(--accent); font-style: normal; }
-    .db-dot { width: 8px; height: 8px; border-radius: 50%; background: #3CB371; display: inline-block; margin-right: 5px; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-    .db-label { font-size: 12px; color: var(--green); font-weight: 500; display: flex; align-items: center; }
+    /* HEADER */
+    .hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
+    .logo{font-size:18px;font-weight:600;letter-spacing:-.5px}
+    .logo em{color:var(--accent);font-style:normal}
+    .dot{width:7px;height:7px;border-radius:50%;background:#3CB371;display:inline-block;margin-right:4px;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+    .db-lbl{font-size:11px;color:var(--green);font-weight:500;display:flex;align-items:center}
 
-    .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); padding: 0 16px; }
-    .tab { flex: 1; padding: 12px 0; text-align: center; font-size: 14px; font-weight: 500; color: var(--muted); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; font-family: 'DM Sans', sans-serif; transition: all .18s; }
-    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    /* TABS */
+    .tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border)}
+    .tab{flex:1;padding:11px 0;text-align:center;font-size:13px;font-weight:500;color:var(--muted);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
-    .content { padding: 16px; max-width: 700px; margin: 0 auto; }
-    .section { display: none; }
-    .section.active { display: block; }
+    .wrap{padding:14px;max-width:680px;margin:0 auto}
+    .sec{display:none}.sec.active{display:block}
 
-    .alert { padding: 11px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; display: none; font-weight: 500; }
-    .alert-ok { background: var(--green-bg); color: var(--green); border: 1px solid #B5D9C2; }
-    .alert-err { background: var(--red-bg); color: var(--red); border: 1px solid #F5BFBF; }
+    /* ALERT */
+    .alert{padding:10px 14px;border-radius:var(--rs);font-size:13px;margin-bottom:12px;display:none;font-weight:500}
+    .alert-ok{background:var(--green-bg);color:var(--green);border:1px solid #B5D9C2}
+    .alert-err{background:var(--red-bg);color:var(--red);border:1px solid #F5BFBF}
 
-    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
-    .btn-pdf { display: flex; align-items: center; gap: 6px; padding: 9px 16px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
-    .btn-pdf:active { background: #6B2C14; }
-    .btn-pdf svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    /* METRICS */
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+    .metric{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px}
+    .mlbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+    .mval{font-size:22px;font-weight:600}
+    .mval.warn{color:var(--red)}
 
-    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
-    .metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; }
-    .metric-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
-    .metric-value { font-size: 24px; font-weight: 600; color: var(--text); }
-    .metric-value.warn { color: var(--red); }
+    /* PRODUCT LIST */
+    .cat-block{margin-bottom:18px}
+    .cat-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .cat-name{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
 
-    .cat-header { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 9px; padding-left: 2px; }
-    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 9px; margin-bottom: 20px; }
+    .prod-list{display:flex;flex-direction:column;gap:6px}
+    .prod-row{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px}
+    .prod-info{flex:1;min-width:0}
+    .prod-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .prod-cat{font-size:11px;color:var(--muted);margin-top:1px}
+    .badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;display:inline-block;margin-top:3px}
+    .b-ok{background:var(--green-bg);color:var(--green)}
+    .b-low{background:var(--red-bg);color:var(--red)}
+    .b-zero{background:var(--orange-bg);color:var(--orange)}
 
-    .pcard { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; transition: box-shadow .15s; }
-    .pcard:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
-    .pcard-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.3; min-height: 34px; }
-    .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; margin-bottom: 10px; }
-    .b-ok { background: var(--green-bg); color: var(--green); }
-    .b-low { background: var(--red-bg); color: var(--red); }
-    .b-zero { background: var(--orange-bg); color: var(--orange); }
-    .stock-row { display: flex; align-items: center; justify-content: space-between; }
-    .snum { font-size: 26px; font-weight: 600; font-family: 'DM Mono', monospace; }
-    .snum.ok { color: var(--green); }
-    .snum.low { color: var(--red); }
-    .snum.zero { color: var(--orange); }
-    .btn-group { display: flex; gap: 5px; }
-    .bsm { width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; color: var(--text); font-family: 'DM Sans', sans-serif; transition: background .12s; user-select: none; }
-    .bsm:active { background: var(--bg2); }
-    .bsm:disabled { opacity: .3; cursor: not-allowed; }
+    .qty-ctrl{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .qnum{font-size:20px;font-weight:600;font-family:'DM Mono',monospace;min-width:30px;text-align:center}
+    .qnum.ok{color:var(--green)}.qnum.low{color:var(--red)}.qnum.zero{color:var(--orange)}
+    .bq{width:32px;height:32px;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text);transition:background .1s;user-select:none;flex-shrink:0}
+    .bq:active{background:#e8e4de}
+    .bq:disabled{opacity:.3;cursor:not-allowed}
 
-    .sale-form { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
-    .form-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 13px; }
-    .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-    .fields-bottom { display: grid; grid-template-columns: 1fr 90px; gap: 10px; margin-bottom: 12px; }
-    .fgroup label { font-size: 12px; color: var(--muted); font-weight: 500; display: block; margin-bottom: 4px; }
-    .fgroup input, .fgroup select { width: 100%; padding: 9px 11px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 14px; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; appearance: none; -webkit-appearance: none; }
-    .fgroup input:focus, .fgroup select:focus { outline: none; border-color: var(--accent2); background: var(--card); }
-    .btn-primary { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
-    .btn-primary:active { background: #6B2C14; }
-    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .row-actions{display:flex;gap:5px;flex-shrink:0}
+    .icon-btn{width:30px;height:30px;border-radius:var(--rs);border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s}
+    .icon-btn svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .icon-btn:active{background:var(--red-bg)}
+    .icon-btn:active svg{stroke:var(--red)}
+    .icon-btn.edit:active{background:var(--blue-bg)}
+    .icon-btn.edit:active svg{stroke:var(--blue)}
 
-    .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-    .stbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .stbl th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 10px 13px; border-bottom: 1px solid var(--border); background: var(--bg); }
-    .stbl td { padding: 11px 13px; border-bottom: 1px solid var(--border); color: var(--text); }
-    .stbl tr:last-child td { border-bottom: none; }
-    .stbl tr:hover td { background: var(--bg); }
-    .alb { font-family: 'DM Mono', monospace; font-size: 12px; background: var(--blue-bg); color: var(--blue); padding: 2px 7px; border-radius: 4px; font-weight: 500; }
-    .del-btn { width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; transition: all .12s; }
-    .del-btn:active { background: var(--red-bg); color: var(--red); border-color: #F5BFBF; }
+    /* ADD PRODUCT BUTTON */
+    .btn-add-prod{width:100%;padding:11px;border:1.5px dashed var(--border2);border-radius:var(--r);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;margin-top:4px}
+    .btn-add-prod:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
 
-    .empty { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 14px; }
-    .loading { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 14px; }
-    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -5px; margin-right: 8px; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    /* PDF BUTTON */
+    .btn-pdf{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+    .btn-pdf svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+    .toolbar{display:flex;justify-content:flex-end;margin-bottom:12px;gap:8px}
 
-    @media (max-width: 400px) {
-      .products-grid { grid-template-columns: repeat(2, 1fr); }
-      .metrics { gap: 7px; }
-      .metric-value { font-size: 20px; }
-      .fields { grid-template-columns: 1fr; }
+    /* MODAL */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end;justify-content:center}
+    .overlay.open{display:flex}
+    .modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px 18px 30px;animation:slideUp .25s ease}
+    @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    .modal-title{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text)}
+    .mfield{margin-bottom:12px}
+    .mfield label{font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:4px}
+    .mfield input,.mfield select{width:100%;padding:10px 12px;border-radius:var(--rs);border:1px solid var(--border);font-size:15px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none}
+    .mfield input:focus,.mfield select:focus{outline:none;border-color:var(--accent)}
+    .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+    .btn-cancel{padding:11px;border:1px solid var(--border);border-radius:var(--rs);background:transparent;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted)}
+    .btn-save{padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+
+    /* VENTAS */
+    .sale-form{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px}
+    .form-title{font-size:15px;font-weight:600;margin-bottom:12px}
+    .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
+    .fgroup label{font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:3px}
+    .fgroup input,.fgroup select{width:100%;padding:9px 11px;border-radius:var(--rs);border:1px solid var(--border);font-size:14px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none}
+    .fgroup input:focus,.fgroup select:focus{outline:none;border-color:var(--accent)}
+    .btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .btn-primary:disabled{opacity:.5}
+
+    .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+    .stbl{width:100%;border-collapse:collapse;font-size:13px}
+    .stbl th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:9px 12px;border-bottom:1px solid var(--border);background:var(--bg)}
+    .stbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+    .stbl tr:last-child td{border-bottom:none}
+    .alb{font-family:'DM Mono',monospace;font-size:11px;background:var(--blue-bg);color:var(--blue);padding:2px 6px;border-radius:4px;font-weight:500}
+    .del-btn{width:26px;height:26px;border-radius:5px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+
+    .empty{text-align:center;padding:2.5rem;color:var(--muted);font-size:14px}
+    .loading{text-align:center;padding:2.5rem;color:var(--muted);font-size:14px}
+    .spin{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-4px;margin-right:7px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:380px){
+      .metrics{gap:5px}.mval{font-size:18px}
+      .fgrid{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
 
-<div class="header">
+<div class="hdr">
   <div class="logo">Deco<em>tara</em> Stock</div>
-  <div class="db-label"><span class="db-dot"></span>Supabase</div>
+  <div class="db-lbl"><span class="dot"></span>Supabase</div>
 </div>
-
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('stock', this)">📦 Stock</button>
-  <button class="tab" onclick="switchTab('ventas', this)">🛒 Ventas</button>
+  <button class="tab active" onclick="switchTab('stock',this)">📦 Stock</button>
+  <button class="tab" onclick="switchTab('ventas',this)">🛒 Ventas</button>
 </div>
 
-<div class="content">
+<div class="wrap">
   <div id="alert-box" class="alert"></div>
 
-  <div id="section-stock" class="section active">
+  <!-- STOCK -->
+  <div id="sec-stock" class="sec active">
     <div class="toolbar">
-      <button class="btn-pdf" onclick="exportPDF()">
+      <button class="btn-pdf" onclick="exportInventarioPDF()">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-        Descargar inventario PDF
+        PDF inventario
       </button>
     </div>
-    <div id="stock-content"><div class="loading"><span class="spinner"></span>Cargando stock...</div></div>
+    <div id="stock-content"><div class="loading"><span class="spin"></span>Cargando...</div></div>
   </div>
 
-  <div id="section-ventas" class="section">
+  <!-- VENTAS -->
+  <div id="sec-ventas" class="sec">
     <div class="sale-form">
       <div class="form-title">Registrar venta</div>
-      <div class="fields">
-        <div class="fgroup">
-          <label>Cliente</label>
-          <input type="text" id="sale-client" placeholder="Nombre del cliente" autocomplete="off">
-        </div>
-        <div class="fgroup">
-          <label>N. Albaran</label>
-          <input type="text" id="sale-albaran" placeholder="ALB-0001" autocomplete="off">
-        </div>
-        <div class="fgroup">
-          <label>Fecha de compra</label>
-          <input type="date" id="sale-date">
-        </div>
-        <div class="fgroup">
-          <label>Producto</label>
-          <select id="sale-product"></select>
-        </div>
+      <div class="fgrid">
+        <div class="fgroup"><label>Cliente</label><input type="text" id="sale-client" placeholder="Nombre del cliente" autocomplete="off"></div>
+        <div class="fgroup"><label>N. Albarán</label><input type="text" id="sale-albaran" placeholder="ALB-0001" autocomplete="off"></div>
+        <div class="fgroup"><label>Fecha</label><input type="date" id="sale-date"></div>
+        <div class="fgroup"><label>Producto</label><select id="sale-product"></select></div>
       </div>
-      <div class="fields-bottom">
-        <div class="fgroup">
-          <label>Cantidad</label>
-          <input type="number" id="sale-qty" value="1" min="1" max="99">
-        </div>
+      <div class="fgrid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
+        <div class="fgroup"><label>Cantidad</label><input type="number" id="sale-qty" value="1" min="1" max="99"></div>
         <div></div>
       </div>
       <button class="btn-primary" id="sale-btn" onclick="addSale()">Registrar venta</button>
     </div>
+    <div class="toolbar">
+      <button class="btn-pdf" onclick="exportVentasPDF()">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        PDF ventas
+      </button>
+    </div>
     <div class="table-wrap">
       <table class="stbl">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Albaran</th>
-            <th>Cliente</th>
-            <th>Producto</th>
-            <th style="text-align:center">Ud.</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="sales-tbody"><tr><td colspan="6" class="loading"><span class="spinner"></span>Cargando...</td></tr></tbody>
+        <thead><tr>
+          <th>Fecha</th><th>Albarán</th><th>Cliente</th><th>Producto</th><th>Ud.</th><th></th>
+        </tr></thead>
+        <tbody id="sales-tbody"><tr><td colspan="6" class="loading"><span class="spin"></span>Cargando...</td></tr></tbody>
       </table>
     </div>
   </div>
 </div>
 
+<!-- MODAL PRODUCTO -->
+<div class="overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Nuevo producto</div>
+    <input type="hidden" id="modal-id">
+    <div class="mfield">
+      <label>Nombre del artículo</label>
+      <input type="text" id="modal-name" placeholder="Ej: Canapé 150, Colchón 180x200...">
+    </div>
+    <div class="mfield">
+      <label>Categoría</label>
+      <select id="modal-cat">
+        <option value="Sofás">Sofás</option>
+        <option value="Canapés">Canapés</option>
+        <option value="Colchones">Colchones</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+    <div class="mfield">
+      <label>Stock inicial</label>
+      <input type="number" id="modal-qty" value="0" min="0">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveProduct()">Guardar</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  const SUPABASE_URL = 'https://uflikwunrowiygcrngrz.supabase.co';
-  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbGlrd3Vucm93aXlnY3JuZ3J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDU4NzIsImV4cCI6MjA5NTMyMTg3Mn0.2l8epSukKpS1qMDMuxif3xspWIWx-EeN1D4iZlh1ZHA';
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_URL='https://uflikwunrowiygcrngrz.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbGlrd3Vucm93aXlnY3JuZ3J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDU4NzIsImV4cCI6MjA5NTMyMTg3Mn0.2l8epSukKpS1qMDMuxif3xspWIWx-EeN1D4iZlh1ZHA';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-  let stockData = [];
-  let salesData = [];
+let stockData=[];
+let salesData=[];
+let editingId=null;
 
-  document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
+document.getElementById('sale-date').value=new Date().toISOString().split('T')[0];
 
-  async function init() {
-    await loadStock();
-    await loadSales();
-    renderStock();
-    populateSelect();
-    renderSales();
-  }
+async function init(){
+  await loadStock(); await loadSales();
+  renderStock(); populateSelect(); renderSales();
+}
 
-  async function loadStock() {
-    const { data, error } = await sb.from('stock').select('*').order('id');
-    if (!error && data) stockData = data;
-  }
+async function loadStock(){
+  const {data,error}=await sb.from('stock').select('*').order('cat').order('name');
+  if(!error&&data) stockData=data;
+}
+async function loadSales(){
+  const {data,error}=await sb.from('sales').select('*').order('created_at',{ascending:false});
+  if(!error&&data) salesData=data;
+}
 
-  async function loadSales() {
-    const { data, error } = await sb.from('sales').select('*').order('created_at', { ascending: false });
-    if (!error && data) salesData = data;
-  }
+function qi(qty){
+  if(qty===0) return {cls:'b-zero',lbl:'Sin stock',nc:'zero'};
+  if(qty<=2) return {cls:'b-low',lbl:'Stock bajo',nc:'low'};
+  return {cls:'b-ok',lbl:'Disponible',nc:'ok'};
+}
 
-  function badgeInfo(qty) {
-    if (qty === 0) return { cls: 'b-zero', label: 'Sin stock', numCls: 'zero' };
-    if (qty <= 2) return { cls: 'b-low', label: 'Stock bajo', numCls: 'low' };
-    return { cls: 'b-ok', label: 'Disponible', numCls: 'ok' };
-  }
+function renderStock(){
+  const total=stockData.reduce((s,p)=>s+p.qty,0);
+  const zero=stockData.filter(p=>p.qty===0).length;
+  const low=stockData.filter(p=>p.qty>0&&p.qty<=2).length;
 
-  function renderStock() {
-    const cats = ['Sofas', 'Canapes', 'Colchones'];
-    const catLabels = { 'Sofas': 'Sofas', 'Canapes': 'Canapes', 'Colchones': 'Colchones' };
-    const icons = { 'Sofas': '🛋️', 'Canapes': '🛏️', 'Colchones': '😴' };
+  let html=`<div class="metrics">
+    <div class="metric"><div class="mlbl">Total stock</div><div class="mval">${total}</div></div>
+    <div class="metric"><div class="mlbl">Ventas</div><div class="mval">${salesData.length}</div></div>
+    <div class="metric"><div class="mlbl">Sin stock</div><div class="mval ${zero>0?'warn':''}">${zero}</div></div>
+  </div>`;
 
-    // Normalize cat names for grouping (strip accents for matching)
-    const normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const catMap = {};
-    stockData.forEach(p => {
-      const key = normalize(p.cat);
-      if (!catMap[key]) catMap[key] = { label: p.cat, items: [] };
-      catMap[key].items.push(p);
+  // Group by category
+  const cats={};
+  stockData.forEach(p=>{
+    if(!cats[p.cat]) cats[p.cat]=[];
+    cats[p.cat].push(p);
+  });
+
+  const catIcons={'Sofás':'🛋️','Canapés':'🛏️','Colchones':'😴','Otros':'📦'};
+
+  Object.entries(cats).forEach(([cat,prods])=>{
+    html+=`<div class="cat-block">
+      <div class="cat-hdr">
+        <span class="cat-name">${catIcons[cat]||'📦'} ${cat}</span>
+      </div>
+      <div class="prod-list">`;
+
+    prods.forEach(p=>{
+      const b=qi(p.qty);
+      html+=`<div class="prod-row">
+        <div class="prod-info">
+          <div class="prod-name">${p.name}</div>
+          <span class="badge ${b.cls}">${b.lbl}</span>
+        </div>
+        <div class="qty-ctrl">
+          <button class="bq" onclick="changeQty('${p.id}',-1)" ${p.qty===0?'disabled':''}>−</button>
+          <span class="qnum ${b.nc}">${p.qty}</span>
+          <button class="bq" onclick="changeQty('${p.id}',1)">+</button>
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn edit" onclick="openEditModal('${p.id}')" aria-label="Editar">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="icon-btn" onclick="deleteProduct('${p.id}')" aria-label="Eliminar">
+            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+        </div>
+      </div>`;
     });
 
-    const total = stockData.reduce((s, p) => s + p.qty, 0);
-    const zero = stockData.filter(p => p.qty === 0).length;
+    html+=`</div></div>`;
+  });
 
-    let html = `<div class="metrics">
-      <div class="metric"><div class="metric-label">Total stock</div><div class="metric-value">${total}</div></div>
-      <div class="metric"><div class="metric-label">Ventas</div><div class="metric-value">${salesData.length}</div></div>
-      <div class="metric"><div class="metric-label">Sin stock</div><div class="metric-value ${zero > 0 ? 'warn' : ''}">${zero}</div></div>
-    </div>`;
+  html+=`<button class="btn-add-prod" onclick="openNewModal()">
+    <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Añadir artículo
+  </button>`;
 
-    Object.values(catMap).forEach(cat => {
-      const key = normalize(cat.label);
-      const icon = icons[key] || icons[cat.label] || '📦';
-      html += `<div class="cat-header">${icon} ${cat.label}</div><div class="products-grid">`;
-      cat.items.forEach(p => {
-        const b = badgeInfo(p.qty);
-        html += `<div class="pcard">
-          <div class="pcard-name">${p.name}</div>
-          <div><span class="badge ${b.cls}">${b.label}</span></div>
-          <div class="stock-row">
-            <span class="snum ${b.numCls}">${p.qty}</span>
-            <div class="btn-group">
-              <button class="bsm" onclick="changeQty('${p.id}', -1)" ${p.qty === 0 ? 'disabled' : ''}>−</button>
-              <button class="bsm" onclick="changeQty('${p.id}', 1)">+</button>
-            </div>
-          </div>
-        </div>`;
-      });
-      html += `</div>`;
+  document.getElementById('stock-content').innerHTML=html;
+}
+
+async function changeQty(id,delta){
+  const p=stockData.find(x=>x.id===id);
+  if(!p) return;
+  const nv=p.qty+delta;
+  if(nv<0){showAlert('No hay más stock para restar.','err');return;}
+  p.qty=nv; renderStock(); populateSelect();
+  await sb.from('stock').update({qty:nv}).eq('id',id);
+}
+
+// ── MODAL ──
+function openNewModal(){
+  editingId=null;
+  document.getElementById('modal-title').textContent='Nuevo artículo';
+  document.getElementById('modal-id').value='';
+  document.getElementById('modal-name').value='';
+  document.getElementById('modal-cat').value='Sofás';
+  document.getElementById('modal-qty').value='0';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-name').focus(),300);
+}
+
+function openEditModal(id){
+  const p=stockData.find(x=>x.id===id);
+  if(!p) return;
+  editingId=id;
+  document.getElementById('modal-title').textContent='Editar artículo';
+  document.getElementById('modal-id').value=p.id;
+  document.getElementById('modal-name').value=p.name;
+  document.getElementById('modal-cat').value=p.cat;
+  document.getElementById('modal-qty').value=p.qty;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  editingId=null;
+}
+function closeModalOutside(e){
+  if(e.target===document.getElementById('modal-overlay')) closeModal();
+}
+
+async function saveProduct(){
+  const name=document.getElementById('modal-name').value.trim();
+  const cat=document.getElementById('modal-cat').value;
+  const qty=parseInt(document.getElementById('modal-qty').value)||0;
+  if(!name){showAlert('Escribe el nombre del artículo.','err');return;}
+
+  if(editingId){
+    // Update
+    const {error}=await sb.from('stock').update({name,cat,qty}).eq('id',editingId);
+    if(error){showAlert('Error al guardar.','err');return;}
+    const p=stockData.find(x=>x.id===editingId);
+    if(p){p.name=name;p.cat=cat;p.qty=qty;}
+    showAlert(`"${name}" actualizado.`,'ok');
+  } else {
+    // Insert — generate id from name
+    const id='p_'+Date.now();
+    const {error}=await sb.from('stock').insert([{id,name,cat,qty}]);
+    if(error){showAlert('Error al guardar.','err');return;}
+    stockData.push({id,name,cat,qty});
+    showAlert(`"${name}" añadido al stock.`,'ok');
+  }
+
+  closeModal();
+  // Re-sort
+  stockData.sort((a,b)=>a.cat.localeCompare(b.cat)||a.name.localeCompare(b.name));
+  renderStock(); populateSelect();
+}
+
+async function deleteProduct(id){
+  const p=stockData.find(x=>x.id===id);
+  if(!p) return;
+  if(!confirm(`Eliminar "${p.name}" del stock?`)) return;
+  const {error}=await sb.from('stock').delete().eq('id',id);
+  if(error){showAlert('Error al eliminar.','err');return;}
+  stockData=stockData.filter(x=>x.id!==id);
+  renderStock(); populateSelect();
+  showAlert(`"${p.name}" eliminado.`,'ok');
+}
+
+// ── VENTAS ──
+function populateSelect(){
+  const sel=document.getElementById('sale-product');
+  if(!sel) return;
+  const prev=sel.value;
+  sel.innerHTML='';
+  stockData.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p.id; o.textContent=`${p.name} (${p.qty} ud.)`;
+    sel.appendChild(o);
+  });
+  if(prev) sel.value=prev;
+}
+
+function renderSales(){
+  const tb=document.getElementById('sales-tbody');
+  if(!salesData.length){tb.innerHTML=`<tr><td colspan="6" class="empty">No hay ventas todavía.</td></tr>`;return;}
+  tb.innerHTML=salesData.map(s=>{
+    const d=s.date?s.date.split('-').reverse().join('/'):'';
+    return `<tr>
+      <td>${d}</td>
+      <td><span class="alb">${s.albaran}</span></td>
+      <td>${s.client}</td>
+      <td>${s.product}</td>
+      <td style="font-weight:600;text-align:center">${s.qty}</td>
+      <td><button class="del-btn" onclick="deleteSale(${s.id},'${s.product_id}',${s.qty})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function addSale(){
+  const client=(document.getElementById('sale-client').value||'').trim();
+  const albaran=(document.getElementById('sale-albaran').value||'').trim();
+  const date=document.getElementById('sale-date').value;
+  const productId=document.getElementById('sale-product').value;
+  const qty=parseInt(document.getElementById('sale-qty').value)||1;
+  const p=stockData.find(x=>x.id===productId);
+  if(!client){showAlert('Indica el nombre del cliente.','err');return;}
+  if(!albaran){showAlert('Introduce el número de albarán.','err');return;}
+  if(!date){showAlert('Selecciona la fecha.','err');return;}
+  if(!p){showAlert('Selecciona un producto.','err');return;}
+  if(p.qty<qty){showAlert(`Solo quedan ${p.qty} uds. de ${p.name}.`,'err');return;}
+  const btn=document.getElementById('sale-btn');
+  btn.disabled=true;btn.textContent='Guardando...';
+  const {data:row,error}=await sb.from('sales').insert([{date,albaran,client,product:p.name,product_id:p.id,qty}]).select().single();
+  if(error){showAlert('Error al registrar.','err');btn.disabled=false;btn.textContent='Registrar venta';return;}
+  const nq=p.qty-qty;
+  await sb.from('stock').update({qty:nq}).eq('id',p.id);
+  p.qty=nq; salesData.unshift(row);
+  document.getElementById('sale-client').value='';
+  document.getElementById('sale-albaran').value='';
+  document.getElementById('sale-qty').value='1';
+  document.getElementById('sale-date').value=new Date().toISOString().split('T')[0];
+  renderSales();renderStock();populateSelect();
+  btn.disabled=false;btn.textContent='Registrar venta';
+  showAlert(`Venta registrada — ${qty}×${p.name} para ${client}.`,'ok');
+}
+
+async function deleteSale(id,productId,qty){
+  if(!confirm('¿Eliminar esta venta y restaurar el stock?')) return;
+  const {error}=await sb.from('sales').delete().eq('id',id);
+  if(error){showAlert('Error al eliminar.','err');return;}
+  salesData=salesData.filter(s=>s.id!==id);
+  const p=stockData.find(x=>x.id===productId);
+  if(p){p.qty+=qty;await sb.from('stock').update({qty:p.qty}).eq('id',productId);}
+  renderSales();renderStock();populateSelect();
+  showAlert('Venta eliminada. Stock restaurado.','ok');
+}
+
+// ── PDF INVENTARIO ──
+function exportInventarioPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const now=new Date();
+  const fd=now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const fh=now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const total=stockData.reduce((s,p)=>s+p.qty,0);
+  const sinStock=stockData.filter(p=>p.qty===0).length;
+  const W=210,M=18;let y=20;
+
+  doc.setFillColor(139,58,30);doc.rect(0,0,W,40,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);
+  doc.text('Decotara Stock',M,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(255,210,185);
+  doc.text('INFORME DE INVENTARIO',M,24);
+  doc.text(`${fd}  ·  ${fh}`,M,31);
+  doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+  doc.text(`Total: ${total} ud.  ·  Sin stock: ${sinStock}`,W-M,31,{align:'right'});
+  y=50;
+
+  const cats={};
+  stockData.forEach(p=>{if(!cats[p.cat])cats[p.cat]=[];cats[p.cat].push(p);});
+
+  Object.entries(cats).forEach(([cat,prods])=>{
+    if(y>260){doc.addPage();y=20;}
+    doc.setFillColor(247,245,242);doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
+    doc.setDrawColor(226,222,217);doc.roundedRect(M,y-5,W-M*2,10,2,2,'S');
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(139,58,30);
+    doc.text(cat.toUpperCase(),M+4,y+1.5);
+    y+=13;
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(122,117,112);
+    doc.text('ARTÍCULO',M+3,y);doc.text('ESTADO',126,y);doc.text('STOCK',W-M-3,y,{align:'right'});
+    y+=2;doc.setDrawColor(226,222,217);doc.line(M,y,W-M,y);y+=5;
+
+    prods.forEach((p,i)=>{
+      if(y>272){doc.addPage();y=20;}
+      if(i%2===0){doc.setFillColor(252,251,249);doc.rect(M,y-4,W-M*2,8,'F');}
+      doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(28,26,23);
+      doc.text(p.name,M+3,y);
+      let bc,bt,tc;
+      if(p.qty===0){bc=[253,234,234];bt='Sin stock';tc=[139,31,31];}
+      else if(p.qty<=2){bc=[253,234,234];bt='Stock bajo';tc=[139,31,31];}
+      else{bc=[232,245,238];bt='Disponible';tc=[45,106,63];}
+      doc.setFillColor(...bc);doc.roundedRect(119,y-3.5,30,6,1.5,1.5,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...tc);
+      doc.text(bt,134,y,{align:'center'});
+      doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...tc);
+      doc.text(String(p.qty),W-M-3,y,{align:'right'});
+      y+=8;
     });
+    y+=4;
+  });
 
-    document.getElementById('stock-content').innerHTML = html;
-  }
+  doc.setFillColor(247,245,242);doc.rect(0,286,W,12,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(122,117,112);
+  doc.text(`Decotara Stock · Inventario ${fd}`,M,293);
+  doc.text(`Total: ${total} uds.`,W-M,293,{align:'right'});
+  doc.save(`inventario-decotara-${now.toISOString().split('T')[0]}.pdf`);
+  showAlert('PDF de inventario descargado.','ok');
+}
 
-  async function changeQty(id, delta) {
-    const p = stockData.find(x => x.id === id);
-    if (!p) return;
-    const nv = p.qty + delta;
-    if (nv < 0) { showAlert('No hay mas stock para restar.', 'err'); return; }
-    p.qty = nv;
-    renderStock();
-    populateSelect();
-    const { error } = await sb.from('stock').update({ qty: nv }).eq('id', id);
-    if (error) showAlert('Error al guardar en la base de datos.', 'err');
-  }
+// ── PDF VENTAS ──
+function exportVentasPDF(){
+  if(!salesData.length){showAlert('No hay ventas para exportar.','err');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const now=new Date();
+  const fd=now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const fh=now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const totalUds=salesData.reduce((s,v)=>s+v.qty,0);
+  const W=210,M=18;let y=20;
 
-  function populateSelect() {
-    const sel = document.getElementById('sale-product');
-    if (!sel) return;
-    const prev = sel.value;
-    sel.innerHTML = '';
-    stockData.forEach(p => {
-      const o = document.createElement('option');
-      o.value = p.id;
-      o.textContent = `${p.name} (${p.qty} ud.)`;
-      sel.appendChild(o);
-    });
-    if (prev) sel.value = prev;
-  }
+  doc.setFillColor(26,79,122);doc.rect(0,0,W,40,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);
+  doc.text('Decotara Stock',M,16);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(180,210,240);
+  doc.text('INFORME DE VENTAS',M,24);
+  doc.text(`${fd}  ·  ${fh}`,M,31);
+  doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
+  doc.text(`${salesData.length} ventas  ·  ${totalUds} uds. vendidas`,W-M,31,{align:'right'});
+  y=50;
 
-  function renderSales() {
-    const tbody = document.getElementById('sales-tbody');
-    if (!salesData.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">No hay ventas registradas todavia.</td></tr>`;
-      return;
+  // Headers
+  doc.setFillColor(232,239,249);doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,79,122);
+  doc.text('FECHA',M+3,y);doc.text('ALBARÁN',M+28,y);
+  doc.text('CLIENTE',M+62,y);doc.text('ARTÍCULO',M+108,y);
+  doc.text('UD.',W-M-3,y,{align:'right'});
+  y+=5;doc.setDrawColor(200,220,240);doc.line(M,y,W-M,y);y+=5;
+
+  salesData.forEach((s,i)=>{
+    if(y>272){
+      doc.addPage();y=20;
+      doc.setFillColor(232,239,249);doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,79,122);
+      doc.text('FECHA',M+3,y);doc.text('ALBARÁN',M+28,y);
+      doc.text('CLIENTE',M+62,y);doc.text('ARTÍCULO',M+108,y);
+      doc.text('UD.',W-M-3,y,{align:'right'});
+      y+=5;doc.setDrawColor(200,220,240);doc.line(M,y,W-M,y);y+=5;
     }
-    tbody.innerHTML = salesData.map(s => {
-      const d = s.date ? s.date.split('-').reverse().join('/') : '';
-      return `<tr>
-        <td>${d}</td>
-        <td><span class="alb">${s.albaran}</span></td>
-        <td>${s.client}</td>
-        <td>${s.product}</td>
-        <td style="text-align:center;font-weight:600">${s.qty}</td>
-        <td><button class="del-btn" onclick="deleteSale(${s.id}, '${s.product_id}', ${s.qty})" aria-label="Eliminar">✕</button></td>
-      </tr>`;
-    }).join('');
-  }
+    if(i%2===0){doc.setFillColor(248,251,255);doc.rect(M,y-4,W-M*2,8,'F');}
+    const d=s.date?s.date.split('-').reverse().join('/'):'';
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(28,26,23);
+    doc.text(d,M+3,y);
+    doc.setFillColor(227,239,249);doc.roundedRect(M+25,y-3.5,34,6,1.5,1.5,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,79,122);
+    doc.text(s.albaran,M+42,y,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(28,26,23);
+    const cl=s.client.length>17?s.client.substring(0,16)+'.':s.client;
+    const pr=s.product.length>20?s.product.substring(0,19)+'.':s.product;
+    doc.text(cl,M+62,y);doc.text(pr,M+108,y);
+    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(26,79,122);
+    doc.text(String(s.qty),W-M-3,y,{align:'right'});
+    y+=8;
+  });
 
-  async function addSale() {
-    const client = (document.getElementById('sale-client').value || '').trim();
-    const albaran = (document.getElementById('sale-albaran').value || '').trim();
-    const date = document.getElementById('sale-date').value;
-    const productId = document.getElementById('sale-product').value;
-    const qty = parseInt(document.getElementById('sale-qty').value) || 1;
-    const p = stockData.find(x => x.id === productId);
+  doc.setFillColor(232,239,249);doc.rect(0,286,W,12,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(26,79,122);
+  doc.text(`Decotara Stock · Ventas ${fd}`,M,293);
+  doc.text(`${salesData.length} ventas · ${totalUds} uds. vendidas`,W-M,293,{align:'right'});
+  doc.save(`ventas-decotara-${now.toISOString().split('T')[0]}.pdf`);
+  showAlert('PDF de ventas descargado.','ok');
+}
 
-    if (!client) { showAlert('Indica el nombre del cliente.', 'err'); return; }
-    if (!albaran) { showAlert('Introduce el numero de albaran.', 'err'); return; }
-    if (!date) { showAlert('Selecciona la fecha de compra.', 'err'); return; }
-    if (!p) { showAlert('Selecciona un producto.', 'err'); return; }
-    if (p.qty < qty) { showAlert(`Solo quedan ${p.qty} unidades de ${p.name}.`, 'err'); return; }
+function switchTab(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('sec-'+tab).classList.add('active');
+}
 
-    const btn = document.getElementById('sale-btn');
-    btn.disabled = true; btn.textContent = 'Guardando...';
+function showAlert(msg,type){
+  const el=document.getElementById('alert-box');
+  el.textContent=msg;el.className='alert alert-'+(type==='err'?'err':'ok');
+  el.style.display='block';clearTimeout(el._t);
+  el._t=setTimeout(()=>el.style.display='none',4000);
+}
 
-    const { data: saleRow, error: saleErr } = await sb.from('sales').insert([{
-      date, albaran, client, product: p.name, product_id: p.id, qty
-    }]).select().single();
-
-    if (saleErr) {
-      showAlert('Error al registrar la venta.', 'err');
-      btn.disabled = false; btn.textContent = 'Registrar venta';
-      return;
-    }
-
-    const newQty = p.qty - qty;
-    await sb.from('stock').update({ qty: newQty }).eq('id', p.id);
-    p.qty = newQty;
-    salesData.unshift(saleRow);
-
-    document.getElementById('sale-client').value = '';
-    document.getElementById('sale-albaran').value = '';
-    document.getElementById('sale-qty').value = '1';
-    document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
-
-    renderSales(); renderStock(); populateSelect();
-    btn.disabled = false; btn.textContent = 'Registrar venta';
-    showAlert(`Venta registrada - Albaran ${albaran} - ${qty} x ${p.name} para ${client}.`, 'ok');
-  }
-
-  async function deleteSale(id, productId, qty) {
-    if (!confirm('Eliminar esta venta y restaurar el stock?')) return;
-    const { error } = await sb.from('sales').delete().eq('id', id);
-    if (error) { showAlert('Error al eliminar la venta.', 'err'); return; }
-    salesData = salesData.filter(s => s.id !== id);
-    const p = stockData.find(x => x.id === productId);
-    if (p) {
-      p.qty += qty;
-      await sb.from('stock').update({ qty: p.qty }).eq('id', productId);
-    }
-    renderSales(); renderStock(); populateSelect();
-    showAlert('Venta eliminada. Stock restaurado.', 'ok');
-  }
-
-  function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-    const now = new Date();
-    const fechaStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const horaStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-    const total = stockData.reduce((s, p) => s + p.qty, 0);
-    const sinStock = stockData.filter(p => p.qty === 0).length;
-    const bajStock = stockData.filter(p => p.qty > 0 && p.qty <= 2).length;
-
-    const margin = 20;
-    const pageW = 210;
-    let y = 20;
-
-    // Header background
-    doc.setFillColor(139, 58, 30);
-    doc.rect(0, 0, pageW, 38, 'F');
-
-    // Logo text
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(255, 255, 255);
-    doc.text('Decotara Stock', margin, 17);
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(255, 220, 200);
-    doc.text(`Inventario generado el ${fechaStr} a las ${horaStr}`, margin, 26);
-    doc.text(`Total: ${total} uds  |  Sin stock: ${sinStock}  |  Stock bajo: ${bajStock}`, margin, 33);
-
-    y = 50;
-
-    // Group by category
-    const catMap = {};
-    stockData.forEach(p => {
-      if (!catMap[p.cat]) catMap[p.cat] = [];
-      catMap[p.cat].push(p);
-    });
-
-    Object.entries(catMap).forEach(([cat, prods]) => {
-      // Category header
-      doc.setFillColor(247, 245, 242);
-      doc.rect(margin, y - 5, pageW - margin * 2, 9, 'F');
-      doc.setDrawColor(226, 222, 217);
-      doc.rect(margin, y - 5, pageW - margin * 2, 9, 'S');
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.setTextColor(139, 58, 30);
-      doc.text(cat.toUpperCase(), margin + 3, y + 1);
-      y += 10;
-
-      // Table header
-      doc.setFillColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.setTextColor(122, 117, 112);
-      doc.text('PRODUCTO', margin + 3, y);
-      doc.text('ESTADO', 120, y);
-      doc.text('STOCK', 165, y, { align: 'right' });
-      y += 2;
-      doc.setDrawColor(226, 222, 217);
-      doc.line(margin, y, pageW - margin, y);
-      y += 5;
-
-      // Rows
-      prods.forEach((p, i) => {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        if (i % 2 === 0) {
-          doc.setFillColor(252, 251, 249);
-          doc.rect(margin, y - 4, pageW - margin * 2, 8, 'F');
-        }
-
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        doc.setTextColor(28, 26, 23);
-        doc.text(p.name, margin + 3, y);
-
-        // Status badge
-        let badgeColor, badgeText;
-        if (p.qty === 0) { badgeColor = [253, 234, 234]; badgeText = 'Sin stock'; doc.setTextColor(139, 31, 31); }
-        else if (p.qty <= 2) { badgeColor = [253, 234, 234]; badgeText = 'Stock bajo'; doc.setTextColor(139, 31, 31); }
-        else { badgeColor = [232, 245, 238]; badgeText = 'Disponible'; doc.setTextColor(45, 106, 63); }
-
-        doc.setFillColor(...badgeColor);
-        doc.roundedRect(117, y - 4, 28, 6, 1.5, 1.5, 'F');
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(8);
-        doc.text(badgeText, 131, y, { align: 'center' });
-
-        // Quantity
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
-        if (p.qty === 0) doc.setTextColor(122, 64, 16);
-        else if (p.qty <= 2) doc.setTextColor(139, 31, 31);
-        else doc.setTextColor(45, 106, 63);
-        doc.text(String(p.qty), 165, y, { align: 'right' });
-
-        y += 8;
-      });
-
-      y += 4;
-    });
-
-    // Footer
-    doc.setFillColor(247, 245, 242);
-    doc.rect(0, 285, pageW, 12, 'F');
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8);
-    doc.setTextColor(122, 117, 112);
-    doc.text(`Decotara Stock - ${fechaStr}`, margin, 292);
-    doc.text(`Total de unidades en almacen: ${total}`, pageW - margin, 292, { align: 'right' });
-
-    doc.save(`inventario-decotara-${now.toISOString().split('T')[0]}.pdf`);
-    showAlert('PDF descargado correctamente.', 'ok');
-  }
-
-  function switchTab(tab, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    el.classList.add('active');
-    document.getElementById('section-' + tab).classList.add('active');
-  }
-
-  function showAlert(msg, type) {
-    const el = document.getElementById('alert-box');
-    el.textContent = msg;
-    el.className = 'alert alert-' + (type === 'err' ? 'err' : 'ok');
-    el.style.display = 'block';
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.style.display = 'none', 4500);
-  }
-
-  init();
+init();
 </script>
 </body>
 </html>
