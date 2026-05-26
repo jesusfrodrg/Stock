@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --bg: #F7F5F2;
@@ -32,91 +33,42 @@
       --radius-sm: 7px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding-bottom: env(safe-area-inset-bottom, 20px);
-    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: env(safe-area-inset-bottom, 20px); }
 
-    /* HEADER */
-    .header {
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+    .header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
     .logo { font-size: 19px; font-weight: 600; letter-spacing: -0.5px; color: var(--text); }
     .logo em { color: var(--accent); font-style: normal; }
     .db-dot { width: 8px; height: 8px; border-radius: 50%; background: #3CB371; display: inline-block; margin-right: 5px; animation: pulse 2s infinite; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
     .db-label { font-size: 12px; color: var(--green); font-weight: 500; display: flex; align-items: center; }
 
-    /* TABS */
-    .tabs {
-      display: flex;
-      background: var(--card);
-      border-bottom: 1px solid var(--border);
-      padding: 0 16px;
-    }
-    .tab {
-      flex: 1;
-      padding: 12px 0;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--muted);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      font-family: 'DM Sans', sans-serif;
-      transition: all .18s;
-    }
+    .tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); padding: 0 16px; }
+    .tab { flex: 1; padding: 12px 0; text-align: center; font-size: 14px; font-weight: 500; color: var(--muted); border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; font-family: 'DM Sans', sans-serif; transition: all .18s; }
     .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-    /* CONTENT */
     .content { padding: 16px; max-width: 700px; margin: 0 auto; }
     .section { display: none; }
     .section.active { display: block; }
 
-    /* ALERT */
-    .alert {
-      padding: 11px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      margin-bottom: 14px;
-      display: none;
-      font-weight: 500;
-    }
+    .alert { padding: 11px 14px; border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 14px; display: none; font-weight: 500; }
     .alert-ok { background: var(--green-bg); color: var(--green); border: 1px solid #B5D9C2; }
     .alert-err { background: var(--red-bg); color: var(--red); border: 1px solid #F5BFBF; }
 
-    /* METRICS */
+    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 14px; }
+    .btn-pdf { display: flex; align-items: center; gap: 6px; padding: 9px 16px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
+    .btn-pdf:active { background: #6B2C14; }
+    .btn-pdf svg { width: 15px; height: 15px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
     .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
     .metric { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; }
     .metric-label { font-size: 11px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
     .metric-value { font-size: 24px; font-weight: 600; color: var(--text); }
     .metric-value.warn { color: var(--red); }
 
-    /* CATEGORY */
     .cat-header { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 9px; padding-left: 2px; }
     .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 9px; margin-bottom: 20px; }
 
-    /* PRODUCT CARD */
-    .pcard {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 13px;
-      transition: box-shadow .15s;
-    }
+    .pcard { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; transition: box-shadow .15s; }
     .pcard:hover { box-shadow: 0 2px 12px rgba(0,0,0,.06); }
     .pcard-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; line-height: 1.3; min-height: 34px; }
     .badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 500; display: inline-block; margin-bottom: 10px; }
@@ -129,110 +81,34 @@
     .snum.low { color: var(--red); }
     .snum.zero { color: var(--orange); }
     .btn-group { display: flex; gap: 5px; }
-    .bsm {
-      width: 30px; height: 30px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      background: var(--bg);
-      cursor: pointer;
-      font-size: 17px;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      transition: background .12s, border-color .12s;
-      user-select: none;
-    }
+    .bsm { width: 30px; height: 30px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; color: var(--text); font-family: 'DM Sans', sans-serif; transition: background .12s; user-select: none; }
     .bsm:active { background: var(--bg2); }
     .bsm:disabled { opacity: .3; cursor: not-allowed; }
 
-    /* SALE FORM */
-    .sale-form {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 16px;
-    }
+    .sale-form { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; }
     .form-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 13px; }
     .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
     .fields-bottom { display: grid; grid-template-columns: 1fr 90px; gap: 10px; margin-bottom: 12px; }
     .fgroup label { font-size: 12px; color: var(--muted); font-weight: 500; display: block; margin-bottom: 4px; }
-    .fgroup input, .fgroup select {
-      width: 100%;
-      padding: 9px 11px;
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--border);
-      font-size: 14px;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      appearance: none;
-      -webkit-appearance: none;
-    }
+    .fgroup input, .fgroup select { width: 100%; padding: 9px 11px; border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 14px; background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; appearance: none; -webkit-appearance: none; }
     .fgroup input:focus, .fgroup select:focus { outline: none; border-color: var(--accent2); background: var(--card); }
-    .btn-primary {
-      width: 100%;
-      padding: 11px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: 'DM Sans', sans-serif;
-      transition: background .15s;
-      letter-spacing: .01em;
-    }
+    .btn-primary { width: 100%; padding: 11px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: background .15s; }
     .btn-primary:active { background: #6B2C14; }
     .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
 
-    /* SALES TABLE */
-    .table-wrap {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-    }
+    .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .stbl { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .stbl th {
-      text-align: left;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      padding: 10px 13px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
-    }
+    .stbl th { text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 10px 13px; border-bottom: 1px solid var(--border); background: var(--bg); }
     .stbl td { padding: 11px 13px; border-bottom: 1px solid var(--border); color: var(--text); }
     .stbl tr:last-child td { border-bottom: none; }
     .stbl tr:hover td { background: var(--bg); }
     .alb { font-family: 'DM Mono', monospace; font-size: 12px; background: var(--blue-bg); color: var(--blue); padding: 2px 7px; border-radius: 4px; font-weight: 500; }
-    .del-btn {
-      width: 26px; height: 26px;
-      border-radius: 5px;
-      border: 1px solid var(--border);
-      background: transparent;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted);
-      font-size: 14px;
-      transition: all .12s;
-    }
+    .del-btn { width: 26px; height: 26px; border-radius: 5px; border: 1px solid var(--border); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 14px; transition: all .12s; }
     .del-btn:active { background: var(--red-bg); color: var(--red); border-color: #F5BFBF; }
 
     .empty { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 14px; }
     .loading { text-align: center; padding: 2.5rem; color: var(--muted); font-size: 14px; }
-    .spinner {
-      display: inline-block; width: 20px; height: 20px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      vertical-align: -5px; margin-right: 8px;
-    }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -5px; margin-right: 8px; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 400px) {
@@ -259,6 +135,12 @@
   <div id="alert-box" class="alert"></div>
 
   <div id="section-stock" class="section active">
+    <div class="toolbar">
+      <button class="btn-pdf" onclick="exportPDF()">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Descargar inventario PDF
+      </button>
+    </div>
     <div id="stock-content"><div class="loading"><span class="spinner"></span>Cargando stock...</div></div>
   </div>
 
@@ -271,7 +153,7 @@
           <input type="text" id="sale-client" placeholder="Nombre del cliente" autocomplete="off">
         </div>
         <div class="fgroup">
-          <label>Nº Albarán</label>
+          <label>N. Albaran</label>
           <input type="text" id="sale-albaran" placeholder="ALB-0001" autocomplete="off">
         </div>
         <div class="fgroup">
@@ -290,14 +172,14 @@
         </div>
         <div></div>
       </div>
-      <button class="btn-primary" id="sale-btn" onclick="addSale()">✓ Registrar venta</button>
+      <button class="btn-primary" id="sale-btn" onclick="addSale()">Registrar venta</button>
     </div>
     <div class="table-wrap">
       <table class="stbl">
         <thead>
           <tr>
             <th>Fecha</th>
-            <th>Albarán</th>
+            <th>Albaran</th>
             <th>Cliente</th>
             <th>Producto</th>
             <th style="text-align:center">Ud.</th>
@@ -317,9 +199,7 @@
 
   let stockData = [];
   let salesData = [];
-  let activeTab = 'stock';
 
-  // Set today's date
   document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
 
   async function init() {
@@ -347,8 +227,19 @@
   }
 
   function renderStock() {
-    const cats = ['Sofás', 'Canapés', 'Colchones'];
-    const icons = { Sofás: '🛋️', Canapés: '🛏️', Colchones: '😴' };
+    const cats = ['Sofas', 'Canapes', 'Colchones'];
+    const catLabels = { 'Sofas': 'Sofas', 'Canapes': 'Canapes', 'Colchones': 'Colchones' };
+    const icons = { 'Sofas': '🛋️', 'Canapes': '🛏️', 'Colchones': '😴' };
+
+    // Normalize cat names for grouping (strip accents for matching)
+    const normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const catMap = {};
+    stockData.forEach(p => {
+      const key = normalize(p.cat);
+      if (!catMap[key]) catMap[key] = { label: p.cat, items: [] };
+      catMap[key].items.push(p);
+    });
+
     const total = stockData.reduce((s, p) => s + p.qty, 0);
     const zero = stockData.filter(p => p.qty === 0).length;
 
@@ -358,11 +249,11 @@
       <div class="metric"><div class="metric-label">Sin stock</div><div class="metric-value ${zero > 0 ? 'warn' : ''}">${zero}</div></div>
     </div>`;
 
-    cats.forEach(cat => {
-      const prods = stockData.filter(p => p.cat === cat);
-      if (!prods.length) return;
-      html += `<div class="cat-header">${icons[cat]} ${cat}</div><div class="products-grid">`;
-      prods.forEach(p => {
+    Object.values(catMap).forEach(cat => {
+      const key = normalize(cat.label);
+      const icon = icons[key] || icons[cat.label] || '📦';
+      html += `<div class="cat-header">${icon} ${cat.label}</div><div class="products-grid">`;
+      cat.items.forEach(p => {
         const b = badgeInfo(p.qty);
         html += `<div class="pcard">
           <div class="pcard-name">${p.name}</div>
@@ -386,7 +277,7 @@
     const p = stockData.find(x => x.id === id);
     if (!p) return;
     const nv = p.qty + delta;
-    if (nv < 0) { showAlert('No hay más stock para restar.', 'err'); return; }
+    if (nv < 0) { showAlert('No hay mas stock para restar.', 'err'); return; }
     p.qty = nv;
     renderStock();
     populateSelect();
@@ -411,7 +302,7 @@
   function renderSales() {
     const tbody = document.getElementById('sales-tbody');
     if (!salesData.length) {
-      tbody.innerHTML = `<tr><td colspan="6" class="empty">No hay ventas registradas todavía.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="6" class="empty">No hay ventas registradas todavia.</td></tr>`;
       return;
     }
     tbody.innerHTML = salesData.map(s => {
@@ -436,27 +327,24 @@
     const p = stockData.find(x => x.id === productId);
 
     if (!client) { showAlert('Indica el nombre del cliente.', 'err'); return; }
-    if (!albaran) { showAlert('Introduce el número de albarán.', 'err'); return; }
+    if (!albaran) { showAlert('Introduce el numero de albaran.', 'err'); return; }
     if (!date) { showAlert('Selecciona la fecha de compra.', 'err'); return; }
     if (!p) { showAlert('Selecciona un producto.', 'err'); return; }
     if (p.qty < qty) { showAlert(`Solo quedan ${p.qty} unidades de ${p.name}.`, 'err'); return; }
 
     const btn = document.getElementById('sale-btn');
-    btn.disabled = true;
-    btn.textContent = 'Guardando...';
+    btn.disabled = true; btn.textContent = 'Guardando...';
 
-    // Insert sale
     const { data: saleRow, error: saleErr } = await sb.from('sales').insert([{
       date, albaran, client, product: p.name, product_id: p.id, qty
     }]).select().single();
 
     if (saleErr) {
       showAlert('Error al registrar la venta.', 'err');
-      btn.disabled = false; btn.textContent = '✓ Registrar venta';
+      btn.disabled = false; btn.textContent = 'Registrar venta';
       return;
     }
 
-    // Update stock
     const newQty = p.qty - qty;
     await sb.from('stock').update({ qty: newQty }).eq('id', p.id);
     p.qty = newQty;
@@ -467,15 +355,13 @@
     document.getElementById('sale-qty').value = '1';
     document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
 
-    renderSales();
-    renderStock();
-    populateSelect();
-    btn.disabled = false; btn.textContent = '✓ Registrar venta';
-    showAlert(`Venta registrada — Albarán ${albaran} · ${qty} × ${p.name} para ${client}.`, 'ok');
+    renderSales(); renderStock(); populateSelect();
+    btn.disabled = false; btn.textContent = 'Registrar venta';
+    showAlert(`Venta registrada - Albaran ${albaran} - ${qty} x ${p.name} para ${client}.`, 'ok');
   }
 
   async function deleteSale(id, productId, qty) {
-    if (!confirm('¿Eliminar esta venta y restaurar el stock?')) return;
+    if (!confirm('Eliminar esta venta y restaurar el stock?')) return;
     const { error } = await sb.from('sales').delete().eq('id', id);
     if (error) { showAlert('Error al eliminar la venta.', 'err'); return; }
     salesData = salesData.filter(s => s.id !== id);
@@ -484,14 +370,131 @@
       p.qty += qty;
       await sb.from('stock').update({ qty: p.qty }).eq('id', productId);
     }
-    renderSales();
-    renderStock();
-    populateSelect();
+    renderSales(); renderStock(); populateSelect();
     showAlert('Venta eliminada. Stock restaurado.', 'ok');
   }
 
+  function exportPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+    const now = new Date();
+    const fechaStr = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    const horaStr = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+    const total = stockData.reduce((s, p) => s + p.qty, 0);
+    const sinStock = stockData.filter(p => p.qty === 0).length;
+    const bajStock = stockData.filter(p => p.qty > 0 && p.qty <= 2).length;
+
+    const margin = 20;
+    const pageW = 210;
+    let y = 20;
+
+    // Header background
+    doc.setFillColor(139, 58, 30);
+    doc.rect(0, 0, pageW, 38, 'F');
+
+    // Logo text
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text('Decotara Stock', margin, 17);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(255, 220, 200);
+    doc.text(`Inventario generado el ${fechaStr} a las ${horaStr}`, margin, 26);
+    doc.text(`Total: ${total} uds  |  Sin stock: ${sinStock}  |  Stock bajo: ${bajStock}`, margin, 33);
+
+    y = 50;
+
+    // Group by category
+    const catMap = {};
+    stockData.forEach(p => {
+      if (!catMap[p.cat]) catMap[p.cat] = [];
+      catMap[p.cat].push(p);
+    });
+
+    Object.entries(catMap).forEach(([cat, prods]) => {
+      // Category header
+      doc.setFillColor(247, 245, 242);
+      doc.rect(margin, y - 5, pageW - margin * 2, 9, 'F');
+      doc.setDrawColor(226, 222, 217);
+      doc.rect(margin, y - 5, pageW - margin * 2, 9, 'S');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.setTextColor(139, 58, 30);
+      doc.text(cat.toUpperCase(), margin + 3, y + 1);
+      y += 10;
+
+      // Table header
+      doc.setFillColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(122, 117, 112);
+      doc.text('PRODUCTO', margin + 3, y);
+      doc.text('ESTADO', 120, y);
+      doc.text('STOCK', 165, y, { align: 'right' });
+      y += 2;
+      doc.setDrawColor(226, 222, 217);
+      doc.line(margin, y, pageW - margin, y);
+      y += 5;
+
+      // Rows
+      prods.forEach((p, i) => {
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+        if (i % 2 === 0) {
+          doc.setFillColor(252, 251, 249);
+          doc.rect(margin, y - 4, pageW - margin * 2, 8, 'F');
+        }
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(28, 26, 23);
+        doc.text(p.name, margin + 3, y);
+
+        // Status badge
+        let badgeColor, badgeText;
+        if (p.qty === 0) { badgeColor = [253, 234, 234]; badgeText = 'Sin stock'; doc.setTextColor(139, 31, 31); }
+        else if (p.qty <= 2) { badgeColor = [253, 234, 234]; badgeText = 'Stock bajo'; doc.setTextColor(139, 31, 31); }
+        else { badgeColor = [232, 245, 238]; badgeText = 'Disponible'; doc.setTextColor(45, 106, 63); }
+
+        doc.setFillColor(...badgeColor);
+        doc.roundedRect(117, y - 4, 28, 6, 1.5, 1.5, 'F');
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.text(badgeText, 131, y, { align: 'center' });
+
+        // Quantity
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        if (p.qty === 0) doc.setTextColor(122, 64, 16);
+        else if (p.qty <= 2) doc.setTextColor(139, 31, 31);
+        else doc.setTextColor(45, 106, 63);
+        doc.text(String(p.qty), 165, y, { align: 'right' });
+
+        y += 8;
+      });
+
+      y += 4;
+    });
+
+    // Footer
+    doc.setFillColor(247, 245, 242);
+    doc.rect(0, 285, pageW, 12, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(122, 117, 112);
+    doc.text(`Decotara Stock - ${fechaStr}`, margin, 292);
+    doc.text(`Total de unidades en almacen: ${total}`, pageW - margin, 292, { align: 'right' });
+
+    doc.save(`inventario-decotara-${now.toISOString().split('T')[0]}.pdf`);
+    showAlert('PDF descargado correctamente.', 'ok');
+  }
+
   function switchTab(tab, el) {
-    activeTab = tab;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     el.classList.add('active');
