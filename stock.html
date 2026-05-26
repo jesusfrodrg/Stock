@@ -18,12 +18,11 @@
       --red:#8B1F1F; --red-bg:#FDEAEA;
       --orange:#7A4010; --orange-bg:#FDF0E3;
       --blue:#1A4F7A; --blue-bg:#E3EFF9;
-      --r:12px; --rs:7px;
+      --r:12px; --rs:8px;
     }
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:30px}
+    body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:40px}
 
-    /* HEADER */
     .hdr{background:var(--card);border-bottom:1px solid var(--border);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200}
     .logo{font-size:18px;font-weight:600;letter-spacing:-.5px}
     .logo em{color:var(--accent);font-style:normal}
@@ -31,96 +30,96 @@
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
     .db-lbl{font-size:11px;color:var(--green);font-weight:500;display:flex;align-items:center}
 
-    /* TABS */
     .tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border)}
-    .tab{flex:1;padding:11px 0;text-align:center;font-size:13px;font-weight:500;color:var(--muted);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
+    .tab{flex:1;padding:12px 0;text-align:center;font-size:14px;font-weight:500;color:var(--muted);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:all .15s}
     .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 
     .wrap{padding:14px;max-width:680px;margin:0 auto}
     .sec{display:none}.sec.active{display:block}
 
-    /* ALERT */
-    .alert{padding:10px 14px;border-radius:var(--rs);font-size:13px;margin-bottom:12px;display:none;font-weight:500}
+    .alert{padding:11px 14px;border-radius:var(--rs);font-size:13px;margin-bottom:12px;display:none;font-weight:500}
     .alert-ok{background:var(--green-bg);color:var(--green);border:1px solid #B5D9C2}
     .alert-err{background:var(--red-bg);color:var(--red);border:1px solid #F5BFBF}
 
     /* METRICS */
-    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-    .metric{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px}
+    .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+    .metric{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 13px}
     .mlbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
     .mval{font-size:22px;font-weight:600}
     .mval.warn{color:var(--red)}
 
     /* PRODUCT LIST */
-    .cat-block{margin-bottom:18px}
-    .cat-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-    .cat-name{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .cat-block{margin-bottom:20px}
+    .cat-name{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px;display:block}
 
-    .prod-list{display:flex;flex-direction:column;gap:6px}
-    .prod-row{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:10px}
-    .prod-info{flex:1;min-width:0}
-    .prod-name{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .prod-cat{font-size:11px;color:var(--muted);margin-top:1px}
-    .badge{font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;display:inline-block;margin-top:3px}
+    .prod-list{display:flex;flex-direction:column;gap:7px}
+    .prod-row{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px}
+    .prod-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px}
+    .prod-name{font-size:15px;font-weight:600;color:var(--text);line-height:1.3;flex:1}
+    .prod-cat-badge{font-size:11px;color:var(--muted);margin-top:2px}
+    .badge{font-size:11px;padding:3px 8px;border-radius:5px;font-weight:600;display:inline-block;margin-top:4px}
     .b-ok{background:var(--green-bg);color:var(--green)}
     .b-low{background:var(--red-bg);color:var(--red)}
     .b-zero{background:var(--orange-bg);color:var(--orange)}
 
-    .qty-ctrl{display:flex;align-items:center;gap:6px;flex-shrink:0}
-    .qnum{font-size:20px;font-weight:600;font-family:'DM Mono',monospace;min-width:30px;text-align:center}
+    .prod-bottom{display:flex;align-items:center;justify-content:space-between}
+    .qty-ctrl{display:flex;align-items:center;gap:8px}
+    .qnum{font-size:28px;font-weight:600;font-family:'DM Mono',monospace;min-width:36px;text-align:center}
     .qnum.ok{color:var(--green)}.qnum.low{color:var(--red)}.qnum.zero{color:var(--orange)}
-    .bq{width:32px;height:32px;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;color:var(--text);transition:background .1s;user-select:none;flex-shrink:0}
-    .bq:active{background:#e8e4de}
-    .bq:disabled{opacity:.3;cursor:not-allowed}
+    .bq{width:38px;height:38px;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;color:var(--text);transition:background .1s;user-select:none;flex-shrink:0}
+    .bq:active{background:#e0dbd4}
+    .bq:disabled{opacity:.28;cursor:not-allowed}
 
-    .row-actions{display:flex;gap:5px;flex-shrink:0}
-    .icon-btn{width:30px;height:30px;border-radius:var(--rs);border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .1s}
-    .icon-btn svg{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-    .icon-btn:active{background:var(--red-bg)}
-    .icon-btn:active svg{stroke:var(--red)}
-    .icon-btn.edit:active{background:var(--blue-bg)}
+    .row-actions{display:flex;gap:6px}
+    .icon-btn{width:38px;height:38px;border-radius:var(--rs);border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+    .icon-btn svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .icon-btn.edit:active{background:var(--blue-bg);border-color:#9FC5E8}
     .icon-btn.edit:active svg{stroke:var(--blue)}
+    .icon-btn.del:active{background:var(--red-bg);border-color:#F5BFBF}
+    .icon-btn.del:active svg{stroke:var(--red)}
 
-    /* ADD PRODUCT BUTTON */
-    .btn-add-prod{width:100%;padding:11px;border:1.5px dashed var(--border2);border-radius:var(--r);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;margin-top:4px}
+    .btn-add-prod{width:100%;padding:13px;border:2px dashed var(--border2);border-radius:var(--r);background:transparent;color:var(--muted);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;margin-top:4px}
     .btn-add-prod:active{background:var(--accent-light);border-color:var(--accent);color:var(--accent)}
 
-    /* PDF BUTTON */
-    .btn-pdf{display:flex;align-items:center;gap:6px;padding:9px 14px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+    .btn-pdf{display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
     .btn-pdf svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
     .toolbar{display:flex;justify-content:flex-end;margin-bottom:12px;gap:8px}
 
     /* MODAL */
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:flex-end;justify-content:center}
     .overlay.open{display:flex}
-    .modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:20px 18px 30px;animation:slideUp .25s ease}
+    .modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:500px;padding:22px 18px 34px;animation:slideUp .22s ease}
     @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
     .modal-title{font-size:16px;font-weight:600;margin-bottom:16px;color:var(--text)}
-    .mfield{margin-bottom:12px}
+    .mfield{margin-bottom:13px}
     .mfield label{font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:4px}
-    .mfield input,.mfield select{width:100%;padding:10px 12px;border-radius:var(--rs);border:1px solid var(--border);font-size:15px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none}
+    .mfield input,.mfield select{width:100%;padding:11px 12px;border-radius:var(--rs);border:1px solid var(--border);font-size:15px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none}
     .mfield input:focus,.mfield select:focus{outline:none;border-color:var(--accent)}
-    .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
-    .btn-cancel{padding:11px;border:1px solid var(--border);border-radius:var(--rs);background:transparent;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted)}
-    .btn-save{padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+    .btn-cancel{padding:12px;border:1px solid var(--border);border-radius:var(--rs);background:transparent;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted)}
+    .btn-save{padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 
     /* VENTAS */
-    .sale-form{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:14px}
-    .form-title{font-size:15px;font-weight:600;margin-bottom:12px}
+    .sale-form{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:14px}
+    .form-title{font-size:15px;font-weight:600;margin-bottom:13px}
     .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:9px}
     .fgroup label{font-size:12px;color:var(--muted);font-weight:500;display:block;margin-bottom:3px}
-    .fgroup input,.fgroup select{width:100%;padding:9px 11px;border-radius:var(--rs);border:1px solid var(--border);font-size:14px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none}
+    .fgroup input,.fgroup select{width:100%;padding:10px 11px;border-radius:var(--rs);border:1px solid var(--border);font-size:14px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-appearance:none}
     .fgroup input:focus,.fgroup select:focus{outline:none;border-color:var(--accent)}
-    .btn-primary{width:100%;padding:11px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+    .btn-primary{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
     .btn-primary:disabled{opacity:.5}
 
-    .table-wrap{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
-    .stbl{width:100%;border-collapse:collapse;font-size:13px}
-    .stbl th{text-align:left;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:9px 12px;border-bottom:1px solid var(--border);background:var(--bg)}
-    .stbl td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text)}
-    .stbl tr:last-child td{border-bottom:none}
-    .alb{font-family:'DM Mono',monospace;font-size:11px;background:var(--blue-bg);color:var(--blue);padding:2px 6px;border-radius:4px;font-weight:500}
-    .del-btn{width:26px;height:26px;border-radius:5px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+    /* VENTAS CARDS — en vez de tabla para móvil */
+    .venta-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:8px}
+    .venta-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
+    .venta-client{font-size:15px;font-weight:600;color:var(--text)}
+    .venta-alb{font-family:'DM Mono',monospace;font-size:12px;background:var(--blue-bg);color:var(--blue);padding:3px 8px;border-radius:5px;font-weight:500;display:inline-block;margin-top:3px}
+    .venta-info{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+    .venta-chip{font-size:12px;padding:3px 9px;border-radius:5px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-weight:500}
+    .venta-chip.qty{background:var(--accent-light);color:var(--accent);border-color:#F5C9B0}
+    .btn-del-venta{width:100%;padding:14px;border:none;border-radius:var(--rs);background:var(--red);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .12s;letter-spacing:.01em}
+    .btn-del-venta:active{background:#6B1515}
+    .btn-del-venta svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
     .empty{text-align:center;padding:2.5rem;color:var(--muted);font-size:14px}
     .loading{text-align:center;padding:2.5rem;color:var(--muted);font-size:14px}
@@ -180,21 +179,14 @@
         PDF ventas
       </button>
     </div>
-    <div class="table-wrap">
-      <table class="stbl">
-        <thead><tr>
-          <th>Fecha</th><th>Albarán</th><th>Cliente</th><th>Producto</th><th>Ud.</th><th></th>
-        </tr></thead>
-        <tbody id="sales-tbody"><tr><td colspan="6" class="loading"><span class="spin"></span>Cargando...</td></tr></tbody>
-      </table>
-    </div>
+    <div id="ventas-list"><div class="loading"><span class="spin"></span>Cargando...</div></div>
   </div>
 </div>
 
 <!-- MODAL PRODUCTO -->
 <div class="overlay" id="modal-overlay" onclick="closeModalOutside(event)">
   <div class="modal">
-    <div class="modal-title" id="modal-title">Nuevo producto</div>
+    <div class="modal-title" id="modal-title">Nuevo artículo</div>
     <input type="hidden" id="modal-id">
     <div class="mfield">
       <label>Nombre del artículo</label>
@@ -254,58 +246,51 @@ function qi(qty){
 function renderStock(){
   const total=stockData.reduce((s,p)=>s+p.qty,0);
   const zero=stockData.filter(p=>p.qty===0).length;
-  const low=stockData.filter(p=>p.qty>0&&p.qty<=2).length;
 
   let html=`<div class="metrics">
-    <div class="metric"><div class="mlbl">Total stock</div><div class="mval">${total}</div></div>
     <div class="metric"><div class="mlbl">Ventas</div><div class="mval">${salesData.length}</div></div>
     <div class="metric"><div class="mlbl">Sin stock</div><div class="mval ${zero>0?'warn':''}">${zero}</div></div>
   </div>`;
 
-  // Group by category
   const cats={};
-  stockData.forEach(p=>{
-    if(!cats[p.cat]) cats[p.cat]=[];
-    cats[p.cat].push(p);
-  });
-
+  stockData.forEach(p=>{if(!cats[p.cat])cats[p.cat]=[];cats[p.cat].push(p);});
   const catIcons={'Sofás':'🛋️','Canapés':'🛏️','Colchones':'😴','Otros':'📦'};
 
   Object.entries(cats).forEach(([cat,prods])=>{
     html+=`<div class="cat-block">
-      <div class="cat-hdr">
-        <span class="cat-name">${catIcons[cat]||'📦'} ${cat}</span>
-      </div>
+      <span class="cat-name">${catIcons[cat]||'📦'} ${cat}</span>
       <div class="prod-list">`;
-
     prods.forEach(p=>{
       const b=qi(p.qty);
       html+=`<div class="prod-row">
-        <div class="prod-info">
-          <div class="prod-name">${p.name}</div>
-          <span class="badge ${b.cls}">${b.lbl}</span>
+        <div class="prod-top">
+          <div>
+            <div class="prod-name">${p.name}</div>
+            <span class="badge ${b.cls}">${b.lbl}</span>
+          </div>
+          <div class="row-actions">
+            <button class="icon-btn edit" onclick="openEditModal('${p.id}')" aria-label="Editar">
+              <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="icon-btn del" onclick="deleteProduct('${p.id}')" aria-label="Eliminar">
+              <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
         </div>
-        <div class="qty-ctrl">
-          <button class="bq" onclick="changeQty('${p.id}',-1)" ${p.qty===0?'disabled':''}>−</button>
-          <span class="qnum ${b.nc}">${p.qty}</span>
-          <button class="bq" onclick="changeQty('${p.id}',1)">+</button>
-        </div>
-        <div class="row-actions">
-          <button class="icon-btn edit" onclick="openEditModal('${p.id}')" aria-label="Editar">
-            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="icon-btn" onclick="deleteProduct('${p.id}')" aria-label="Eliminar">
-            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-          </button>
+        <div class="prod-bottom">
+          <div class="qty-ctrl">
+            <button class="bq" onclick="changeQty('${p.id}',-1)" ${p.qty===0?'disabled':''}>−</button>
+            <span class="qnum ${b.nc}">${p.qty}</span>
+            <button class="bq" onclick="changeQty('${p.id}',1)">+</button>
+          </div>
         </div>
       </div>`;
     });
-
     html+=`</div></div>`;
   });
 
   html+=`<button class="btn-add-prod" onclick="openNewModal()">
-    <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
     Añadir artículo
   </button>`;
 
@@ -321,7 +306,6 @@ async function changeQty(id,delta){
   await sb.from('stock').update({qty:nv}).eq('id',id);
 }
 
-// ── MODAL ──
 function openNewModal(){
   editingId=null;
   document.getElementById('modal-title').textContent='Nuevo artículo';
@@ -345,38 +329,28 @@ function openEditModal(id){
   document.getElementById('modal-overlay').classList.add('open');
 }
 
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-  editingId=null;
-}
-function closeModalOutside(e){
-  if(e.target===document.getElementById('modal-overlay')) closeModal();
-}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editingId=null;}
+function closeModalOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
 
 async function saveProduct(){
   const name=document.getElementById('modal-name').value.trim();
   const cat=document.getElementById('modal-cat').value;
   const qty=parseInt(document.getElementById('modal-qty').value)||0;
   if(!name){showAlert('Escribe el nombre del artículo.','err');return;}
-
   if(editingId){
-    // Update
     const {error}=await sb.from('stock').update({name,cat,qty}).eq('id',editingId);
     if(error){showAlert('Error al guardar.','err');return;}
     const p=stockData.find(x=>x.id===editingId);
     if(p){p.name=name;p.cat=cat;p.qty=qty;}
     showAlert(`"${name}" actualizado.`,'ok');
   } else {
-    // Insert — generate id from name
     const id='p_'+Date.now();
     const {error}=await sb.from('stock').insert([{id,name,cat,qty}]);
     if(error){showAlert('Error al guardar.','err');return;}
     stockData.push({id,name,cat,qty});
-    showAlert(`"${name}" añadido al stock.`,'ok');
+    showAlert(`"${name}" añadido.`,'ok');
   }
-
   closeModal();
-  // Re-sort
   stockData.sort((a,b)=>a.cat.localeCompare(b.cat)||a.name.localeCompare(b.name));
   renderStock(); populateSelect();
 }
@@ -384,7 +358,7 @@ async function saveProduct(){
 async function deleteProduct(id){
   const p=stockData.find(x=>x.id===id);
   if(!p) return;
-  if(!confirm(`Eliminar "${p.name}" del stock?`)) return;
+  if(!confirm(`¿Eliminar "${p.name}" del stock?`)) return;
   const {error}=await sb.from('stock').delete().eq('id',id);
   if(error){showAlert('Error al eliminar.','err');return;}
   stockData=stockData.filter(x=>x.id!==id);
@@ -392,12 +366,10 @@ async function deleteProduct(id){
   showAlert(`"${p.name}" eliminado.`,'ok');
 }
 
-// ── VENTAS ──
 function populateSelect(){
   const sel=document.getElementById('sale-product');
   if(!sel) return;
-  const prev=sel.value;
-  sel.innerHTML='';
+  const prev=sel.value; sel.innerHTML='';
   stockData.forEach(p=>{
     const o=document.createElement('option');
     o.value=p.id; o.textContent=`${p.name} (${p.qty} ud.)`;
@@ -407,18 +379,27 @@ function populateSelect(){
 }
 
 function renderSales(){
-  const tb=document.getElementById('sales-tbody');
-  if(!salesData.length){tb.innerHTML=`<tr><td colspan="6" class="empty">No hay ventas todavía.</td></tr>`;return;}
-  tb.innerHTML=salesData.map(s=>{
+  const el=document.getElementById('ventas-list');
+  if(!salesData.length){el.innerHTML=`<div class="empty">No hay ventas registradas todavía.</div>`;return;}
+  el.innerHTML=salesData.map(s=>{
     const d=s.date?s.date.split('-').reverse().join('/'):'';
-    return `<tr>
-      <td>${d}</td>
-      <td><span class="alb">${s.albaran}</span></td>
-      <td>${s.client}</td>
-      <td>${s.product}</td>
-      <td style="font-weight:600;text-align:center">${s.qty}</td>
-      <td><button class="del-btn" onclick="deleteSale(${s.id},'${s.product_id}',${s.qty})">✕</button></td>
-    </tr>`;
+    return `<div class="venta-card">
+      <div class="venta-top">
+        <div>
+          <div class="venta-client">${s.client}</div>
+          <span class="venta-alb">${s.albaran}</span>
+        </div>
+        <span style="font-size:12px;color:var(--muted);flex-shrink:0">${d}</span>
+      </div>
+      <div class="venta-info">
+        <span class="venta-chip">${s.product}</span>
+        <span class="venta-chip qty">${s.qty} ud.</span>
+      </div>
+      <button class="btn-del-venta" onclick="deleteSale(${s.id})">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        Eliminar venta entregada
+      </button>
+    </div>`;
   }).join('');
 }
 
@@ -433,7 +414,7 @@ async function addSale(){
   if(!albaran){showAlert('Introduce el número de albarán.','err');return;}
   if(!date){showAlert('Selecciona la fecha.','err');return;}
   if(!p){showAlert('Selecciona un producto.','err');return;}
-  if(p.qty<qty){showAlert(`Solo quedan ${p.qty} uds. de ${p.name}.`,'err');return;}
+  if(p.qty<qty){showAlert(`Solo quedan ${p.qty} ud. de ${p.name}.`,'err');return;}
   const btn=document.getElementById('sale-btn');
   btn.disabled=true;btn.textContent='Guardando...';
   const {data:row,error}=await sb.from('sales').insert([{date,albaran,client,product:p.name,product_id:p.id,qty}]).select().single();
@@ -450,80 +431,125 @@ async function addSale(){
   showAlert(`Venta registrada — ${qty}×${p.name} para ${client}.`,'ok');
 }
 
-async function deleteSale(id,productId,qty){
-  if(!confirm('¿Eliminar esta venta y restaurar el stock?')) return;
+async function deleteSale(id){
+  if(!confirm('¿Eliminar esta venta?\nEl stock NO se modificará.')) return;
   const {error}=await sb.from('sales').delete().eq('id',id);
   if(error){showAlert('Error al eliminar.','err');return;}
   salesData=salesData.filter(s=>s.id!==id);
-  const p=stockData.find(x=>x.id===productId);
-  if(p){p.qty+=qty;await sb.from('stock').update({qty:p.qty}).eq('id',productId);}
   renderSales();renderStock();populateSelect();
-  showAlert('Venta eliminada. Stock restaurado.','ok');
+  showAlert('Venta eliminada.','ok');
 }
 
-// ── PDF INVENTARIO ──
+function pdfHeader(doc,title,subtitle,right1,right2,W,M){
+  // Fondo degradado simulado con dos rectángulos
+  doc.setFillColor(60,30,15); doc.rect(0,0,W,48,'F');
+  doc.setFillColor(139,58,30); doc.rect(0,14,W,34,'F');
+  // Línea decorativa dorada
+  doc.setDrawColor(210,160,80); doc.setLineWidth(0.6);
+  doc.line(M,44,W-M,44);
+  // Logo
+  doc.setFont('helvetica','bold'); doc.setFontSize(24); doc.setTextColor(255,255,255);
+  doc.text('Decotara',M,13);
+  doc.setFont('helvetica','normal'); doc.setFontSize(24); doc.setTextColor(210,160,80);
+  doc.text(' Stock',M+doc.getTextWidth('Decotara'),13);
+  // Título
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(255,220,180);
+  doc.setCharSpace(2); doc.text(title,M,22); doc.setCharSpace(0);
+  // Subtítulo
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(255,245,235);
+  doc.text(subtitle,M,30);
+  // Info derecha
+  doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(210,160,80);
+  doc.text(right1,W-M,22,{align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,235,210);
+  doc.text(right2,W-M,30,{align:'right'});
+  doc.setLineWidth(0.2);
+}
+
+function pdfFooter(doc,left,right,W,M){
+  doc.setFillColor(40,20,10); doc.rect(0,284,W,14,'F');
+  doc.setDrawColor(210,160,80); doc.setLineWidth(0.4);
+  doc.line(M,284.5,W-M,284.5); doc.setLineWidth(0.2);
+  doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(210,160,80);
+  doc.text(left,M,291);
+  doc.text(right,W-M,291,{align:'right'});
+}
+
 function exportInventarioPDF(){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
   const now=new Date();
   const fd=now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
   const fh=now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
-  const total=stockData.reduce((s,p)=>s+p.qty,0);
   const sinStock=stockData.filter(p=>p.qty===0).length;
-  const W=210,M=18;let y=20;
+  const bajStock=stockData.filter(p=>p.qty>0&&p.qty<=2).length;
+  const W=210,M=18; let y=58;
 
-  doc.setFillColor(139,58,30);doc.rect(0,0,W,40,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);
-  doc.text('Decotara Stock',M,16);
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(255,210,185);
-  doc.text('INFORME DE INVENTARIO',M,24);
-  doc.text(`${fd}  ·  ${fh}`,M,31);
-  doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-  doc.text(`Total: ${total} ud.  ·  Sin stock: ${sinStock}`,W-M,31,{align:'right'});
-  y=50;
+  pdfHeader(doc,'INFORME DE INVENTARIO',`Generado el ${fd} a las ${fh}`,
+    `Sin stock: ${sinStock}`,`Stock bajo: ${bajStock}`,W,M);
 
   const cats={};
   stockData.forEach(p=>{if(!cats[p.cat])cats[p.cat]=[];cats[p.cat].push(p);});
 
   Object.entries(cats).forEach(([cat,prods])=>{
     if(y>260){doc.addPage();y=20;}
-    doc.setFillColor(247,245,242);doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
-    doc.setDrawColor(226,222,217);doc.roundedRect(M,y-5,W-M*2,10,2,2,'S');
-    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(139,58,30);
-    doc.text(cat.toUpperCase(),M+4,y+1.5);
-    y+=13;
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(122,117,112);
-    doc.text('ARTÍCULO',M+3,y);doc.text('ESTADO',126,y);doc.text('STOCK',W-M-3,y,{align:'right'});
-    y+=2;doc.setDrawColor(226,222,217);doc.line(M,y,W-M,y);y+=5;
+    // Cabecera categoría — barra lateral de color + fondo
+    doc.setFillColor(250,246,241); doc.roundedRect(M,y-6,W-M*2,11,2,2,'F');
+    doc.setFillColor(139,58,30); doc.rect(M,y-6,3,11,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(100,40,15);
+    doc.text(cat,M+7,y+1.5);
+    // Nº artículos en la derecha
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(160,100,70);
+    doc.text(`${prods.length} artículo${prods.length!==1?'s':''}`,W-M-2,y+1.5,{align:'right'});
+    y+=14;
+
+    // Cabecera columnas
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5);
+    doc.setTextColor(150,130,115);
+    doc.setCharSpace(0.8);
+    doc.text('ARTÍCULO',M+2,y); doc.text('ESTADO',W-M-50,y); doc.text('UNIADES',W-M-2,y,{align:'right'});
+    doc.setCharSpace(0);
+    y+=1.5;
+    doc.setDrawColor(220,210,200); doc.line(M,y,W-M,y); y+=4.5;
 
     prods.forEach((p,i)=>{
       if(y>272){doc.addPage();y=20;}
-      if(i%2===0){doc.setFillColor(252,251,249);doc.rect(M,y-4,W-M*2,8,'F');}
-      doc.setFont('helvetica','normal');doc.setFontSize(10);doc.setTextColor(28,26,23);
-      doc.text(p.name,M+3,y);
-      let bc,bt,tc;
-      if(p.qty===0){bc=[253,234,234];bt='Sin stock';tc=[139,31,31];}
-      else if(p.qty<=2){bc=[253,234,234];bt='Stock bajo';tc=[139,31,31];}
-      else{bc=[232,245,238];bt='Disponible';tc=[45,106,63];}
-      doc.setFillColor(...bc);doc.roundedRect(119,y-3.5,30,6,1.5,1.5,'F');
-      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(...tc);
-      doc.text(bt,134,y,{align:'center'});
-      doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...tc);
-      doc.text(String(p.qty),W-M-3,y,{align:'right'});
-      y+=8;
+      // Fila alterna
+      if(i%2===0){doc.setFillColor(253,251,248);doc.rect(M,y-3.5,W-M*2,8,'F');}
+
+      // Punto de color según estado
+      let tc,pc;
+      if(p.qty===0){tc=[170,40,40];pc=[220,80,80];}
+      else if(p.qty<=2){tc=[160,80,20];pc=[220,140,40];}
+      else{tc=[35,110,55];pc=[70,170,100];}
+      doc.setFillColor(...pc); doc.circle(M+3,y,1.2,'F');
+
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(28,26,23);
+      doc.text(p.name,M+7,y+0.5);
+
+      // Badge estado
+      let bt;
+      if(p.qty===0) bt='Sin stock';
+      else if(p.qty<=2) bt='Stock bajo';
+      else bt='Disponible';
+      doc.setFillColor(...tc.map(v=>Math.min(255,v+180)));
+      doc.roundedRect(W-M-52,y-3,28,5.5,1.5,1.5,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...tc);
+      doc.text(bt,W-M-38,y+0.8,{align:'center'});
+
+      // Número grande
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...tc);
+      doc.text(String(p.qty),W-M-2,y+1,{align:'right'});
+      y+=9;
     });
-    y+=4;
+    y+=5;
   });
 
-  doc.setFillColor(247,245,242);doc.rect(0,286,W,12,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(122,117,112);
-  doc.text(`Decotara Stock · Inventario ${fd}`,M,293);
-  doc.text(`Total: ${total} uds.`,W-M,293,{align:'right'});
+  pdfFooter(doc,`Decotara Stock  ·  Inventario ${fd}`,`${fd} ${fh}`,W,M);
   doc.save(`inventario-decotara-${now.toISOString().split('T')[0]}.pdf`);
   showAlert('PDF de inventario descargado.','ok');
 }
 
-// ── PDF VENTAS ──
 function exportVentasPDF(){
   if(!salesData.length){showAlert('No hay ventas para exportar.','err');return;}
   const {jsPDF}=window.jspdf;
@@ -532,56 +558,69 @@ function exportVentasPDF(){
   const fd=now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
   const fh=now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
   const totalUds=salesData.reduce((s,v)=>s+v.qty,0);
-  const W=210,M=18;let y=20;
+  const W=210,M=18; let y=58;
 
-  doc.setFillColor(26,79,122);doc.rect(0,0,W,40,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(20);doc.setTextColor(255,255,255);
-  doc.text('Decotara Stock',M,16);
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(180,210,240);
-  doc.text('INFORME DE VENTAS',M,24);
-  doc.text(`${fd}  ·  ${fh}`,M,31);
-  doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
-  doc.text(`${salesData.length} ventas  ·  ${totalUds} uds. vendidas`,W-M,31,{align:'right'});
-  y=50;
+  pdfHeader(doc,'INFORME DE VENTAS',`Generado el ${fd} a las ${fh}`,
+    `${salesData.length} ventas`,`${totalUds} unidades vendidas`,W,M);
 
-  // Headers
-  doc.setFillColor(232,239,249);doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,79,122);
-  doc.text('FECHA',M+3,y);doc.text('ALBARÁN',M+28,y);
-  doc.text('CLIENTE',M+62,y);doc.text('ARTÍCULO',M+108,y);
-  doc.text('UD.',W-M-3,y,{align:'right'});
-  y+=5;doc.setDrawColor(200,220,240);doc.line(M,y,W-M,y);y+=5;
+  // Cabecera tabla
+  doc.setFillColor(250,246,241); doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
+  doc.setFillColor(139,58,30); doc.rect(M,y-5,3,10,'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(100,40,15);
+  doc.setCharSpace(0.8);
+  doc.text('FECHA',M+7,y); doc.text('ALBARÁN',M+33,y);
+  doc.text('CLIENTE',M+68,y); doc.text('ARTÍCULO',M+112,y);
+  doc.text('UD.',W-M-2,y,{align:'right'});
+  doc.setCharSpace(0);
+  y+=5; doc.setDrawColor(220,210,200); doc.line(M,y,W-M,y); y+=5;
+
+  function drawVentasHeader(){
+    doc.setFillColor(250,246,241); doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
+    doc.setFillColor(139,58,30); doc.rect(M,y-5,3,10,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(100,40,15);
+    doc.setCharSpace(0.8);
+    doc.text('FECHA',M+7,y); doc.text('ALBARÁN',M+33,y);
+    doc.text('CLIENTE',M+68,y); doc.text('ARTÍCULO',M+112,y);
+    doc.text('UD.',W-M-2,y,{align:'right'});
+    doc.setCharSpace(0);
+    y+=5; doc.setDrawColor(220,210,200); doc.line(M,y,W-M,y); y+=5;
+  }
 
   salesData.forEach((s,i)=>{
-    if(y>272){
-      doc.addPage();y=20;
-      doc.setFillColor(232,239,249);doc.roundedRect(M,y-5,W-M*2,10,2,2,'F');
-      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,79,122);
-      doc.text('FECHA',M+3,y);doc.text('ALBARÁN',M+28,y);
-      doc.text('CLIENTE',M+62,y);doc.text('ARTÍCULO',M+108,y);
-      doc.text('UD.',W-M-3,y,{align:'right'});
-      y+=5;doc.setDrawColor(200,220,240);doc.line(M,y,W-M,y);y+=5;
-    }
-    if(i%2===0){doc.setFillColor(248,251,255);doc.rect(M,y-4,W-M*2,8,'F');}
+    if(y>274){doc.addPage();y=20;drawVentasHeader();}
+    if(i%2===0){doc.setFillColor(253,251,248);doc.rect(M,y-3.5,W-M*2,9,'F');}
+
     const d=s.date?s.date.split('-').reverse().join('/'):'';
-    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(28,26,23);
-    doc.text(d,M+3,y);
-    doc.setFillColor(227,239,249);doc.roundedRect(M+25,y-3.5,34,6,1.5,1.5,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(26,79,122);
-    doc.text(s.albaran,M+42,y,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(28,26,23);
-    const cl=s.client.length>17?s.client.substring(0,16)+'.':s.client;
-    const pr=s.product.length>20?s.product.substring(0,19)+'.':s.product;
-    doc.text(cl,M+62,y);doc.text(pr,M+108,y);
-    doc.setFont('helvetica','bold');doc.setFontSize(10);doc.setTextColor(26,79,122);
-    doc.text(String(s.qty),W-M-3,y,{align:'right'});
-    y+=8;
+
+    // Punto decorativo
+    doc.setFillColor(139,58,30); doc.circle(M+3,y,1.2,'F');
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(28,26,23);
+    doc.text(d,M+7,y+0.5);
+
+    // Albarán con fondo
+    const albW=doc.getTextWidth(s.albaran)+6;
+    doc.setFillColor(250,242,230);
+    doc.roundedRect(M+30,y-3,albW,5.5,1.5,1.5,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor(139,58,30);
+    doc.text(s.albaran,M+33,y+0.8);
+
+    doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(28,26,23);
+    const cl=s.client.length>18?s.client.substring(0,17)+'.':s.client;
+    const pr=s.product.length>22?s.product.substring(0,21)+'.':s.product;
+    doc.text(cl,M+68,y+0.5);
+    doc.text(pr,M+112,y+0.5);
+
+    // Cantidad con círculo
+    doc.setFillColor(250,242,230);
+    doc.circle(W-M-5,y,4,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(139,58,30);
+    doc.text(String(s.qty),W-M-5,y+0.8,{align:'center'});
+
+    y+=9.5;
   });
 
-  doc.setFillColor(232,239,249);doc.rect(0,286,W,12,'F');
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(26,79,122);
-  doc.text(`Decotara Stock · Ventas ${fd}`,M,293);
-  doc.text(`${salesData.length} ventas · ${totalUds} uds. vendidas`,W-M,293,{align:'right'});
+  pdfFooter(doc,`Decotara Stock  ·  Ventas ${fd}`,`${salesData.length} ventas · ${totalUds} uds.`,W,M);
   doc.save(`ventas-decotara-${now.toISOString().split('T')[0]}.pdf`);
   showAlert('PDF de ventas descargado.','ok');
 }
