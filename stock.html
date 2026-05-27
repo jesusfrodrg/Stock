@@ -142,6 +142,19 @@
     .btn-del-venta svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
     .empty{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
+    .empty strong{color:var(--red)}
+
+    /* BÚSQUEDA */
+    .search-box{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 14px;margin-bottom:12px;transition:border-color .15s}
+    .search-box:focus-within{border-color:var(--red);box-shadow:0 0 0 3px rgba(192,0,26,.1)}
+    .search-box svg{width:17px;height:17px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+    .search-box input{flex:1;border:none;background:transparent;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+    .search-box input::placeholder{color:var(--muted)}
+    #search-clear{width:26px;height:26px;border-radius:50%;border:none;background:var(--bg2);cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0}
+    #search-clear svg{width:13px;height:13px;stroke:var(--muted);stroke-width:2.5;stroke-linecap:round}
+    .search-count{font-size:12px;color:var(--muted);margin-bottom:10px;padding:0 2px}
+    .search-count strong{color:var(--red)}
+    mark{background:rgba(192,0,26,.15);color:var(--red);border-radius:2px;padding:0 1px;font-weight:600}
     .loading{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
     .spin{display:inline-block;width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;vertical-align:-4px;margin-right:7px}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -207,6 +220,13 @@
       <button class="btn-pdf" onclick="exportVentasPDF()">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         PDF ventas
+      </button>
+    </div>
+    <div class="search-box">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="ventas-search" placeholder="Buscar por cliente, albarán o artículo..." oninput="renderSales()">
+      <button id="search-clear" onclick="clearSearch()" aria-label="Borrar búsqueda">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div id="ventas-list"><div class="loading"><span class="spin"></span>Cargando...</div></div>
@@ -411,20 +431,44 @@ function populateSelect(){
 
 function renderSales(){
   const el=document.getElementById('ventas-list');
+  const q=(document.getElementById('ventas-search')?.value||'').toLowerCase().trim();
+  const clearBtn=document.getElementById('search-clear');
+  if(clearBtn) clearBtn.style.display=q?'flex':'none';
+
+  const filtered=q
+    ? salesData.filter(s=>
+        s.client.toLowerCase().includes(q)||
+        s.albaran.toLowerCase().includes(q)||
+        s.product.toLowerCase().includes(q)||
+        (s.date&&s.date.split('-').reverse().join('/').includes(q))
+      )
+    : salesData;
+
   if(!salesData.length){el.innerHTML=`<div class="empty">No hay ventas registradas todavía.</div>`;return;}
-  el.innerHTML=salesData.map(s=>{
+  if(!filtered.length){el.innerHTML=`<div class="empty">No se encontraron ventas para "<strong>${q}</strong>".</div>`;return;}
+
+  // contador resultados
+  const counter = q ? `<div class="search-count">${filtered.length} resultado${filtered.length!==1?'s':''} para "<strong>${q}</strong>"</div>` : '';
+
+  el.innerHTML = counter + filtered.map(s=>{
     const d=s.date?s.date.split('-').reverse().join('/'):'';
+    // highlight matching text
+    const hl=(txt)=>{
+      if(!q) return txt;
+      const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+      return txt.replace(re,'<mark>$1</mark>');
+    };
     return `<div class="venta-card">
       <div class="venta-card-top">
         <div>
-          <div class="venta-client">${s.client}</div>
-          <span class="venta-alb">${s.albaran}</span>
+          <div class="venta-client">${hl(s.client)}</div>
+          <span class="venta-alb">${hl(s.albaran)}</span>
         </div>
         <span class="venta-date">${d}</span>
       </div>
       <div class="venta-body">
         <div class="venta-info">
-          <span class="venta-chip">${s.product}</span>
+          <span class="venta-chip">${hl(s.product)}</span>
           <span class="venta-chip qty">${s.qty} ud.</span>
         </div>
         <button class="btn-del-venta" onclick="deleteSale(${s.id})">
@@ -434,6 +478,12 @@ function renderSales(){
       </div>
     </div>`;
   }).join('');
+}
+
+function clearSearch(){
+  const inp=document.getElementById('ventas-search');
+  if(inp){inp.value='';inp.focus();}
+  renderSales();
 }
 
 async function addSale(){
