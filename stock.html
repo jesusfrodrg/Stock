@@ -141,6 +141,34 @@
     .btn-del-venta:active{background:var(--red2);transform:scale(.98)}
     .btn-del-venta svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
+    /* BUSCADOR PRODUCTO EN FORMULARIO */
+    .prod-search-wrap{position:relative}
+    .prod-search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 11px;transition:border-color .15s}
+    .prod-search-box:focus-within{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px rgba(192,0,26,.1)}
+    .prod-search-box svg{width:15px;height:15px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;flex-shrink:0}
+    .prod-search-box input{flex:1;border:none;background:transparent;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;min-width:0}
+    .prod-search-box input::placeholder{color:var(--muted)}
+    #prod-search-clear{width:22px;height:22px;border-radius:50%;border:none;background:var(--bg2);cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;padding:0}
+    #prod-search-clear svg{width:11px;height:11px;stroke:var(--muted);stroke-width:2.5;stroke-linecap:round}
+    .prod-dropdown{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);box-shadow:0 8px 24px rgba(192,0,26,.15);z-index:150;max-height:260px;overflow-y:auto}
+    .pd-cat{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.1em;padding:8px 12px 4px;border-top:1px solid var(--border)}
+    .pd-cat:first-child{border-top:none}
+    .pd-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;cursor:pointer;gap:8px;transition:background .1s}
+    .pd-item:active, .pd-item:hover{background:var(--red-bg)}
+    .pd-item.pd-disabled{opacity:.45;cursor:not-allowed}
+    .pd-item.pd-disabled:active{background:transparent}
+    .pd-name{font-size:14px;font-weight:500;color:var(--text);flex:1;min-width:0}
+    .pd-name mark{background:rgba(192,0,26,.15);color:var(--red);border-radius:2px;padding:0 1px;font-weight:700}
+    .pd-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+    .pd-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+    .pd-badge.pd-low{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+    .pd-badge.pd-zero{background:var(--amber-bg);color:var(--amber);border:1px solid #F5D88A}
+    .pd-qty{font-size:15px;font-weight:700;font-family:'DM Mono',monospace;min-width:24px;text-align:right}
+    .pd-qty.pd-ok{color:var(--green)}
+    .pd-qty.pd-low{color:var(--red)}
+    .pd-qty.pd-zero{color:var(--amber)}
+    .pd-empty{padding:14px 12px;font-size:13px;color:var(--muted);text-align:center}
+
     .empty{text-align:center;padding:3rem;color:var(--muted);font-size:14px}
     .empty strong{color:var(--red)}
 
@@ -208,7 +236,20 @@
         <div class="fgroup"><label>Cliente</label><input type="text" id="sale-client" placeholder="Nombre del cliente" autocomplete="off"></div>
         <div class="fgroup"><label>N. Albarán</label><input type="text" id="sale-albaran" placeholder="ALB-0001" autocomplete="off"></div>
         <div class="fgroup"><label>Fecha</label><input type="date" id="sale-date"></div>
-        <div class="fgroup"><label>Producto</label><select id="sale-product"></select></div>
+        <div class="fgroup">
+          <label>Artículo</label>
+          <div class="prod-search-wrap" id="prod-search-wrap">
+            <div class="prod-search-box" id="prod-search-box">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="prod-search-input" placeholder="Buscar artículo..." autocomplete="off" oninput="filterProdSearch()" onfocus="openProdSearch()">
+              <button id="prod-search-clear" onclick="clearProdSearch()" style="display:none" aria-label="Borrar">
+                <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="prod-dropdown" id="prod-dropdown" style="display:none"></div>
+          </div>
+          <input type="hidden" id="sale-product">
+        </div>
       </div>
       <div class="fgrid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
         <div class="fgroup"><label>Cantidad</label><input type="number" id="sale-qty" value="1" min="1" max="99"></div>
@@ -418,16 +459,86 @@ async function deleteProduct(id){
 }
 
 function populateSelect(){
-  const sel=document.getElementById('sale-product');
-  if(!sel) return;
-  const prev=sel.value; sel.innerHTML='';
-  stockData.forEach(p=>{
-    const o=document.createElement('option');
-    o.value=p.id; o.textContent=`${p.name} (${p.qty} ud.)`;
-    sel.appendChild(o);
-  });
-  if(prev) sel.value=prev;
+  // Solo actualiza el texto si ya hay un producto seleccionado
+  const pid = document.getElementById('sale-product').value;
+  if(pid){
+    const p = stockData.find(x=>x.id===pid);
+    if(p) document.getElementById('prod-search-input').value = `${p.name} (${p.qty} ud.)`;
+  }
 }
+
+function openProdSearch(){
+  filterProdSearch();
+}
+
+function filterProdSearch(){
+  const q=(document.getElementById('prod-search-input').value||'').toLowerCase().trim();
+  const dd=document.getElementById('prod-dropdown');
+  const clearBtn=document.getElementById('prod-search-clear');
+  clearBtn.style.display=q?'flex':'none';
+
+  const matches = q
+    ? stockData.filter(p=>p.name.toLowerCase().includes(q)||p.cat.toLowerCase().includes(q))
+    : stockData;
+
+  if(!matches.length){
+    dd.innerHTML=`<div class="pd-empty">No se encontró ningún artículo</div>`;
+    dd.style.display='block'; return;
+  }
+
+  // Agrupar por categoría
+  const cats={};
+  matches.forEach(p=>{if(!cats[p.cat])cats[p.cat]=[];cats[p.cat].push(p);});
+  const catIcons={'Sofás':'🛋️','Canapés':'🛏️','Colchones':'😴','Otros':'📦'};
+
+  let html='';
+  Object.entries(cats).forEach(([cat,prods])=>{
+    html+=`<div class="pd-cat">${catIcons[cat]||'📦'} ${cat}</div>`;
+    prods.forEach(p=>{
+      const bi = p.qty===0?'pd-zero':p.qty<=2?'pd-low':'pd-ok';
+      const bl = p.qty===0?'Sin stock':p.qty<=2?'Stock bajo':'';
+      const hl=(txt)=>{
+        if(!q) return txt;
+        const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+        return txt.replace(re,'<mark>$1</mark>');
+      };
+      html+=`<div class="pd-item ${p.qty===0?'pd-disabled':''}" onclick="${p.qty>0?`selectProduct('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.qty})`:''}">
+        <div class="pd-name">${hl(p.name)}</div>
+        <div class="pd-right">
+          ${bl?`<span class="pd-badge ${bi}">${bl}</span>`:''}
+          <span class="pd-qty ${bi}">${p.qty}</span>
+        </div>
+      </div>`;
+    });
+  });
+
+  dd.innerHTML=html;
+  dd.style.display='block';
+}
+
+function selectProduct(id, name, qty){
+  document.getElementById('sale-product').value = id;
+  document.getElementById('prod-search-input').value = `${name}  ·  ${qty} ud. disponibles`;
+  document.getElementById('prod-search-clear').style.display='flex';
+  document.getElementById('prod-dropdown').style.display='none';
+}
+
+function clearProdSearch(){
+  document.getElementById('sale-product').value='';
+  document.getElementById('prod-search-input').value='';
+  document.getElementById('prod-search-clear').style.display='none';
+  document.getElementById('prod-dropdown').style.display='none';
+  document.getElementById('prod-search-input').focus();
+}
+
+// Cerrar dropdown al tocar fuera
+document.addEventListener('click', function(e){
+  const wrap=document.getElementById('prod-search-wrap');
+  if(wrap && !wrap.contains(e.target)){
+    const dd=document.getElementById('prod-dropdown');
+    if(dd) dd.style.display='none';
+  }
+});
 
 function renderSales(){
   const el=document.getElementById('ventas-list');
