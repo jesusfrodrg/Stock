@@ -160,7 +160,8 @@
     .pd-name{font-size:14px;font-weight:500;color:var(--text);flex:1;min-width:0}
     .pd-name mark{background:rgba(192,0,26,.15);color:var(--red);border-radius:2px;padding:0 1px;font-weight:700}
     .pd-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
-    .pd-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600}
+    .tienda-banner{background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;border-radius:var(--r);padding:14px 18px;margin-bottom:14px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(192,0,26,.25)}
+    .tienda-banner svg{width:20px;height:20px;flex-shrink:0}
     .pd-badge.pd-low{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
     .pd-badge.pd-zero{background:var(--amber-bg);color:var(--amber);border:1px solid #F5D88A}
     .pd-qty{font-size:15px;font-weight:700;font-family:'DM Mono',monospace;min-width:24px;text-align:right}
@@ -206,7 +207,11 @@
 <div class="tabs">
   <button class="tab active" onclick="switchTab('stock',this)">
     <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-    Stock
+    Almacén
+  </button>
+  <button class="tab" onclick="switchTab('tienda',this)">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Tienda
   </button>
   <button class="tab" onclick="switchTab('ventas',this)">
     <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
@@ -217,7 +222,7 @@
 <div class="wrap">
   <div id="alert-box" class="alert"></div>
 
-  <!-- STOCK -->
+  <!-- STOCK ALMACÉN -->
   <div id="sec-stock" class="sec active">
     <div class="toolbar">
       <button class="btn-pdf" onclick="exportInventarioPDF()">
@@ -226,6 +231,21 @@
       </button>
     </div>
     <div id="stock-content"><div class="loading"><span class="spin"></span>Cargando...</div></div>
+  </div>
+
+  <!-- STOCK TIENDA -->
+  <div id="sec-tienda" class="sec">
+    <div class="tienda-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Stock expuesto en tienda
+    </div>
+    <div class="toolbar">
+      <button class="btn-pdf" onclick="exportTiendaPDF()">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        PDF tienda
+      </button>
+    </div>
+    <div id="tienda-content"><div class="loading"><span class="spin"></span>Cargando...</div></div>
   </div>
 
   <!-- VENTAS -->
@@ -274,7 +294,7 @@
   </div>
 </div>
 
-<!-- MODAL PRODUCTO -->
+<!-- MODAL PRODUCTO ALMACÉN -->
 <div class="overlay" id="modal-overlay" onclick="closeModalOutside(event)">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -304,6 +324,36 @@
   </div>
 </div>
 
+<!-- MODAL PRODUCTO TIENDA -->
+<div class="overlay" id="modal-tienda-overlay" onclick="closeTiendaModalOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-tienda-title">Nuevo artículo en tienda</div>
+    <input type="hidden" id="modal-tienda-id">
+    <div class="mfield">
+      <label>Nombre del artículo</label>
+      <input type="text" id="modal-tienda-name" placeholder="Ej: Sofá rinconera, Colchón 150x190...">
+    </div>
+    <div class="mfield">
+      <label>Categoría</label>
+      <select id="modal-tienda-cat">
+        <option value="Sofás">Sofás</option>
+        <option value="Canapés">Canapés</option>
+        <option value="Colchones">Colchones</option>
+        <option value="Otros">Otros</option>
+      </select>
+    </div>
+    <div class="mfield">
+      <label>Unidades expuestas</label>
+      <input type="number" id="modal-tienda-qty" value="1" min="0">
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeTiendaModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveTiendaProduct()">Guardar artículo</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL='https://uflikwunrowiygcrngrz.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbGlrd3Vucm93aXlnY3JuZ3J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDU4NzIsImV4cCI6MjA5NTMyMTg3Mn0.2l8epSukKpS1qMDMuxif3xspWIWx-EeN1D4iZlh1ZHA';
@@ -311,13 +361,15 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 let stockData=[];
 let salesData=[];
+let tiendaData=[];
 let editingId=null;
+let editingTiendaId=null;
 
 document.getElementById('sale-date').value=new Date().toISOString().split('T')[0];
 
 async function init(){
-  await loadStock(); await loadSales();
-  renderStock(); populateSelect(); renderSales();
+  await loadStock(); await loadSales(); await loadTienda();
+  renderStock(); populateSelect(); renderSales(); renderTienda();
 }
 
 async function loadStock(){
@@ -327,6 +379,10 @@ async function loadStock(){
 async function loadSales(){
   const {data,error}=await sb.from('sales').select('*').order('created_at',{ascending:false});
   if(!error&&data) salesData=data;
+}
+async function loadTienda(){
+  const {data,error}=await sb.from('stock_tienda').select('*').order('cat').order('name');
+  if(!error&&data) tiendaData=data;
 }
 
 function qi(qty){
@@ -821,6 +877,197 @@ function exportVentasPDF(){
   pdfFooter(doc,`Decotara Stock  ·  Ventas ${fd}`,`${salesData.length} ventas · ${totalUds} uds.`,W,M);
   doc.save(`ventas-decotara-${now.toISOString().split('T')[0]}.pdf`);
   showAlert('PDF de ventas descargado.','ok');
+}
+
+// ── TIENDA ──────────────────────────────────────────────
+function renderTienda(){
+  const total=tiendaData.reduce((s,p)=>s+p.qty,0);
+  const zero=tiendaData.filter(p=>p.qty===0).length;
+
+  let html=`<div class="metrics">
+    <div class="metric"><div class="mlbl">Expuestos</div><div class="mval">${total}</div></div>
+    <div class="metric"><div class="mlbl">Sin exponer</div><div class="mval ${zero>0?'warn':''}">${zero}</div></div>
+  </div>`;
+
+  const cats={};
+  tiendaData.forEach(p=>{if(!cats[p.cat])cats[p.cat]=[];cats[p.cat].push(p);});
+  const catIcons={'Sofás':'🛋️','Canapés':'🛏️','Colchones':'😴','Otros':'📦'};
+
+  if(!tiendaData.length){
+    html+=`<div class="empty">No hay artículos en tienda todavía.<br>Pulsa <strong>Añadir artículo</strong> para empezar.</div>`;
+  } else {
+    Object.entries(cats).forEach(([cat,prods])=>{
+      html+=`<div class="cat-block">
+        <div class="cat-hdr"><span class="cat-pill">${catIcons[cat]||'📦'} ${cat}</span></div>
+        <div class="prod-list">`;
+      prods.forEach(p=>{
+        const b=qi(p.qty);
+        html+=`<div class="prod-row">
+          <div class="prod-top">
+            <div>
+              <div class="prod-name">${p.name}</div>
+              <span class="badge ${b.cls}">${b.lbl}</span>
+            </div>
+            <div class="row-actions">
+              <button class="icon-btn edit" onclick="openEditTiendaModal('${p.id}')" aria-label="Editar">
+                <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="icon-btn del" onclick="deleteTiendaProduct('${p.id}')" aria-label="Eliminar">
+                <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="prod-bottom">
+            <div class="qty-ctrl">
+              <button class="bq" onclick="changeTiendaQty('${p.id}',-1)" ${p.qty===0?'disabled':''}>−</button>
+              <span class="qnum ${b.nc}">${p.qty}</span>
+              <button class="bq" onclick="changeTiendaQty('${p.id}',1)">+</button>
+            </div>
+          </div>
+        </div>`;
+      });
+      html+=`</div></div>`;
+    });
+  }
+
+  html+=`<button class="btn-add-prod" onclick="openNewTiendaModal()">
+    <svg style="width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Añadir artículo
+  </button>`;
+
+  document.getElementById('tienda-content').innerHTML=html;
+}
+
+async function changeTiendaQty(id,delta){
+  const p=tiendaData.find(x=>x.id===id);
+  if(!p) return;
+  const nv=p.qty+delta;
+  if(nv<0){showAlert('No hay más unidades para restar.','err');return;}
+  p.qty=nv; renderTienda();
+  await sb.from('stock_tienda').update({qty:nv}).eq('id',id);
+}
+
+function openNewTiendaModal(){
+  editingTiendaId=null;
+  document.getElementById('modal-tienda-title').textContent='Nuevo artículo en tienda';
+  document.getElementById('modal-tienda-id').value='';
+  document.getElementById('modal-tienda-name').value='';
+  document.getElementById('modal-tienda-cat').value='Sofás';
+  document.getElementById('modal-tienda-qty').value='1';
+  document.getElementById('modal-tienda-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-tienda-name').focus(),300);
+}
+
+function openEditTiendaModal(id){
+  const p=tiendaData.find(x=>x.id===id);
+  if(!p) return;
+  editingTiendaId=id;
+  document.getElementById('modal-tienda-title').textContent='Editar artículo de tienda';
+  document.getElementById('modal-tienda-id').value=p.id;
+  document.getElementById('modal-tienda-name').value=p.name;
+  document.getElementById('modal-tienda-cat').value=p.cat;
+  document.getElementById('modal-tienda-qty').value=p.qty;
+  document.getElementById('modal-tienda-overlay').classList.add('open');
+}
+
+function closeTiendaModal(){document.getElementById('modal-tienda-overlay').classList.remove('open');editingTiendaId=null;}
+function closeTiendaModalOutside(e){if(e.target===document.getElementById('modal-tienda-overlay'))closeTiendaModal();}
+
+async function saveTiendaProduct(){
+  const name=document.getElementById('modal-tienda-name').value.trim();
+  const cat=document.getElementById('modal-tienda-cat').value;
+  const qty=parseInt(document.getElementById('modal-tienda-qty').value)||0;
+  if(!name){showAlert('Escribe el nombre del artículo.','err');return;}
+  if(editingTiendaId){
+    const {error}=await sb.from('stock_tienda').update({name,cat,qty}).eq('id',editingTiendaId);
+    if(error){showAlert('Error al guardar.','err');return;}
+    const p=tiendaData.find(x=>x.id===editingTiendaId);
+    if(p){p.name=name;p.cat=cat;p.qty=qty;}
+    showAlert(`"${name}" actualizado.`,'ok');
+  } else {
+    const id='t_'+Date.now();
+    const {error}=await sb.from('stock_tienda').insert([{id,name,cat,qty}]);
+    if(error){showAlert('Error al guardar.','err');return;}
+    tiendaData.push({id,name,cat,qty});
+    showAlert(`"${name}" añadido a tienda.`,'ok');
+  }
+  closeTiendaModal();
+  tiendaData.sort((a,b)=>a.cat.localeCompare(b.cat)||a.name.localeCompare(b.name));
+  renderTienda();
+}
+
+async function deleteTiendaProduct(id){
+  const p=tiendaData.find(x=>x.id===id);
+  if(!p) return;
+  if(!confirm(`¿Eliminar "${p.name}" de la tienda?`)) return;
+  const {error}=await sb.from('stock_tienda').delete().eq('id',id);
+  if(error){showAlert('Error al eliminar.','err');return;}
+  tiendaData=tiendaData.filter(x=>x.id!==id);
+  renderTienda();
+  showAlert(`"${p.name}" eliminado de tienda.`,'ok');
+}
+
+// ── PDF TIENDA ──
+function exportTiendaPDF(){
+  if(!tiendaData.length){showAlert('No hay artículos en tienda para exportar.','err');return;}
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const now=new Date();
+  const fd=now.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const fh=now.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  const total=tiendaData.reduce((s,p)=>s+p.qty,0);
+  const sinStock=tiendaData.filter(p=>p.qty===0).length;
+  const W=210,M=18; let y=58;
+
+  pdfHeader(doc,'STOCK TIENDA',`Generado el ${fd} a las ${fh}`,
+    `Expuestos: ${total}`,`Sin exponer: ${sinStock}`,W,M);
+
+  const cats={};
+  tiendaData.forEach(p=>{if(!cats[p.cat])cats[p.cat]=[];cats[p.cat].push(p);});
+
+  Object.entries(cats).forEach(([cat,prods])=>{
+    if(y>260){doc.addPage();y=20;}
+    doc.setFillColor(255,240,242); doc.roundedRect(M,y-6,W-M*2,11,2,2,'F');
+    doc.setFillColor(192,0,26); doc.rect(M,y-6,3,11,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(140,0,18);
+    doc.text(cat.toUpperCase(),M+7,y+1.5);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(192,0,26);
+    doc.text(`${prods.length} artículo${prods.length!==1?'s':''}`,W-M-2,y+1.5,{align:'right'});
+    y+=14;
+    doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(150,0,20);
+    doc.setCharSpace(0.8);
+    doc.text('ARTÍCULO',M+2,y); doc.text('ESTADO',W-M-50,y); doc.text('UNIDADES',W-M-2,y,{align:'right'});
+    doc.setCharSpace(0);
+    y+=1.5; doc.setDrawColor(192,0,26); doc.line(M,y,W-M,y); y+=4.5;
+
+    prods.forEach((p,i)=>{
+      if(y>272){doc.addPage();y=20;}
+      if(i%2===0){doc.setFillColor(255,245,247);doc.rect(M,y-3.5,W-M*2,8,'F');}
+      let tc,pc;
+      if(p.qty===0){tc=[170,40,40];pc=[220,80,80];}
+      else if(p.qty<=2){tc=[160,80,20];pc=[220,140,40];}
+      else{tc=[35,110,55];pc=[70,170,100];}
+      doc.setFillColor(...pc); doc.circle(M+3,y,1.2,'F');
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(28,26,23);
+      doc.text(p.name,M+7,y+0.5);
+      let bt;
+      if(p.qty===0) bt='Sin exponer';
+      else if(p.qty<=2) bt='Pocas unidades';
+      else bt='Disponible';
+      doc.setFillColor(...tc.map(v=>Math.min(255,v+180)));
+      doc.roundedRect(W-M-52,y-3,32,5.5,1.5,1.5,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...tc);
+      doc.text(bt,W-M-36,y+0.8,{align:'center'});
+      doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(...tc);
+      doc.text(String(p.qty),W-M-2,y+1,{align:'right'});
+      y+=9;
+    });
+    y+=5;
+  });
+
+  pdfFooter(doc,`Decotara Stock · Stock Tienda ${fd}`,`Total expuestos: ${total}`,W,M);
+  doc.save(`stock-tienda-decotara-${now.toISOString().split('T')[0]}.pdf`);
+  showAlert('PDF de stock tienda descargado.','ok');
 }
 
 function switchTab(tab,el){
