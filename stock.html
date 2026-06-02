@@ -663,22 +663,100 @@ async function addSale(){
   if(!client){showAlert('Indica el nombre del cliente.','err');return;}
   if(!albaran){showAlert('Introduce el número de albarán.','err');return;}
   if(!date){showAlert('Selecciona la fecha.','err');return;}
-  if(!p){showAlert('Selecciona un producto.','err');return;}
-  if(p.qty<qty){showAlert(`Solo quedan ${p.qty} ud. de ${p.name}.`,'err');return;}
+  if(!p){showAlert('Selecciona un producto válido.','err');return;}
+
+  // Buscar coincidencia en tienda
+  const tiendaMatch=tiendaData.find(t=>
+    t.name.toLowerCase()===p.name.toLowerCase()||
+    t.name.toLowerCase().includes(p.name.toLowerCase())||
+    p.name.toLowerCase().includes(t.name.toLowerCase())
+  );
+
+  const hayAlmacen = p.qty >= qty;
+  const hayTienda  = tiendaMatch && tiendaMatch.qty >= qty;
+
+  // Solo preguntar si hay stock en los dos
+  if(hayAlmacen && hayTienda){
+    openOrigenModal(p, tiendaMatch, qty, client, albaran, date);
+    return;
+  }
+  // Solo almacén
+  if(hayAlmacen){
+    await confirmarVenta('almacen', p, tiendaMatch, qty, client, albaran, date);
+    return;
+  }
+  // Solo tienda
+  if(hayTienda){
+    await confirmarVenta('tienda', p, tiendaMatch, qty, client, albaran, date);
+    return;
+  }
+  // Ninguno
+  const almQty = p.qty;
+  const tiQty  = tiendaMatch ? tiendaMatch.qty : 0;
+  showAlert(`Stock insuficiente — Almacén: ${almQty} ud. / Tienda: ${tiQty} ud.`,'err');
+}
+
+function openOrigenModal(p, tiendaMatch, qty, client, albaran, date){
+  document.getElementById('origen-modal-body').innerHTML=`
+    <div class="origen-subtitle">Venta de <strong>${qty} × ${p.name}</strong> para <strong>${client}</strong></div>
+    <div class="origen-subtitle" style="margin-bottom:16px">Hay stock en los dos sitios. ¿Desde dónde se descuenta?</div>
+    <button class="origen-btn" onclick="confirmarVentaModal('almacen')">
+      <div class="origen-icon">🏭</div>
+      <div class="origen-info">
+        <div class="origen-name">Stock Almacén</div>
+        <div class="origen-stock origen-stock-green">${p.qty} ud. disponibles</div>
+      </div>
+      <div class="origen-arrow">→</div>
+    </button>
+    <button class="origen-btn" onclick="confirmarVentaModal('tienda')">
+      <div class="origen-icon">🏠</div>
+      <div class="origen-info">
+        <div class="origen-name">Stock Tienda</div>
+        <div class="origen-stock origen-stock-green">${tiendaMatch.qty} ud. disponibles</div>
+      </div>
+      <div class="origen-arrow">→</div>
+    </button>
+    <button class="origen-btn-ninguno" onclick="confirmarVentaModal('ninguno')">
+      Solo registrar, sin descontar stock
+    </button>
+  `;
+  window._pendingSale={p,tiendaMatch,qty,client,albaran,date};
+  document.getElementById('origen-overlay').classList.add('open');
+}
+
+async function confirmarVentaModal(origen){
+  document.getElementById('origen-overlay').classList.remove('open');
+  const {p,tiendaMatch,qty,client,albaran,date}=window._pendingSale;
+  await confirmarVenta(origen,p,tiendaMatch,qty,client,albaran,date);
+}
+
+async function confirmarVenta(origen,p,tiendaMatch,qty,client,albaran,date){
   const btn=document.getElementById('sale-btn');
   btn.disabled=true;btn.textContent='Guardando...';
-  const {data:row,error}=await sb.from('sales').insert([{date,albaran,client,product:p.name,product_id:p.id,qty}]).select().single();
+  const origenLabel=origen==='almacen'?'Almacén':origen==='tienda'?'Tienda':'Sin descontar';
+  const {data:row,error}=await sb.from('sales').insert([{
+    date,albaran,client,product:p.name,product_id:p.id,qty,origen:origenLabel
+  }]).select().single();
   if(error){showAlert('Error al registrar.','err');btn.disabled=false;btn.textContent='Registrar venta';return;}
-  const nq=p.qty-qty;
-  await sb.from('stock').update({qty:nq}).eq('id',p.id);
-  p.qty=nq; salesData.unshift(row);
+  if(origen==='almacen'){
+    const nq=p.qty-qty;
+    await sb.from('stock').update({qty:nq}).eq('id',p.id);
+    p.qty=nq;
+  } else if(origen==='tienda'&&tiendaMatch){
+    const nq=tiendaMatch.qty-qty;
+    await sb.from('stock_tienda').update({qty:nq}).eq('id',tiendaMatch.id);
+    tiendaMatch.qty=nq;
+    renderTienda();
+  }
+  salesData.unshift(row);
   document.getElementById('sale-client').value='';
   document.getElementById('sale-albaran').value='';
   document.getElementById('sale-qty').value='1';
   document.getElementById('sale-date').value=new Date().toISOString().split('T')[0];
+  clearProdSearch();
   renderSales();renderStock();populateSelect();
   btn.disabled=false;btn.textContent='Registrar venta';
-  showAlert(`Venta registrada — ${qty}×${p.name} para ${client}.`,'ok');
+  showAlert(`Venta registrada — ${qty}×${p.name} para ${client} (${origenLabel}).`,'ok');
 }
 
 async function deleteSale(id){
