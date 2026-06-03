@@ -141,7 +141,20 @@
     .btn-del-venta:active{background:var(--red2);transform:scale(.98)}
     .btn-del-venta svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
-    /* BUSCADOR PRODUCTO EN FORMULARIO */
+    /* MODAL ORIGEN */
+    .origen-subtitle{font-size:14px;color:var(--text);margin-bottom:6px;line-height:1.4}
+    .origen-subtitle strong{color:var(--red)}
+    .origen-btn{width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r);cursor:pointer;margin-bottom:10px;text-align:left;transition:all .15s;font-family:'DM Sans',sans-serif}
+    .origen-btn:active{background:var(--red-bg);border-color:var(--red)}
+    .origen-icon{font-size:26px;flex-shrink:0}
+    .origen-info{flex:1}
+    .origen-name{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+    .origen-stock{font-size:13px;font-weight:500}
+    .origen-stock-green{color:var(--green)}
+    .origen-stock-red{color:var(--red)}
+    .origen-arrow{font-size:20px;color:var(--red);font-weight:700;flex-shrink:0}
+    .origen-btn-ninguno{width:100%;padding:12px;border:1.5px dashed var(--border2);border-radius:var(--rs);background:transparent;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:4px;transition:all .15s}
+    .origen-btn-ninguno:active{background:var(--bg2)}
     .prod-search-wrap{position:relative}
     .prod-search-box{display:flex;align-items:center;gap:8px;background:var(--bg);border:1.5px solid var(--border);border-radius:var(--rs);padding:9px 11px;transition:border-color .15s}
     .prod-search-box:focus-within{border-color:var(--red);background:#fff;box-shadow:0 0 0 3px rgba(192,0,26,.1)}
@@ -351,6 +364,14 @@
       <button class="btn-cancel" onclick="closeTiendaModal()">Cancelar</button>
       <button class="btn-save" onclick="saveTiendaProduct()">Guardar artículo</button>
     </div>
+  </div>
+</div>
+
+<!-- MODAL ORIGEN VENTA -->
+<div class="overlay" id="origen-overlay" onclick="closeOrigenOutside(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="origen-modal-body"></div>
   </div>
 </div>
 
@@ -1146,6 +1167,11 @@ function exportTiendaPDF(){
   pdfFooter(doc,`Decotara Stock · Stock Tienda ${fd}`,`Total expuestos: ${total}`,W,M);
   doc.save(`stock-tienda-decotara-${now.toISOString().split('T')[0]}.pdf`);
   showAlert('PDF de stock tienda descargado.','ok');
+}
+
+function closeOrigenOutside(e){
+  if(e.target===document.getElementById('origen-overlay'))
+    document.getElementById('origen-overlay').classList.remove('open');
 }
 
 function switchTab(tab,el){
