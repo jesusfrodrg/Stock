@@ -344,9 +344,15 @@ async function init(){
     sb.from('sales').select('*').order('created_at',{ascending:false}),
     sb.from('stock_tienda').select('*').order('cat').order('name')
   ]);
-  if(!rs.error) stockData=rs.data||[];
-  if(!rv.error) salesData=rv.data||[];
-  if(!rt.error) tiendaData=rt.data||[];
+  if(rs.error){
+    document.getElementById('stock-content').innerHTML=`<div class="empty" style="color:var(--red)">Error almacén: ${rs.error.message}</div>`;
+  } else { stockData=rs.data||[]; }
+  if(rv.error){
+    document.getElementById('ventas-list').innerHTML=`<div class="empty" style="color:var(--red)">Error ventas: ${rv.error.message}</div>`;
+  } else { salesData=rv.data||[]; }
+  if(rt.error){
+    document.getElementById('tienda-content').innerHTML=`<div class="empty" style="color:var(--red)">Error tienda: ${rt.error.message}</div>`;
+  } else { tiendaData=rt.data||[]; }
   renderStock(); renderTienda(); renderSales();
 }
 
