@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Supabase</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="font-family:sans-serif;padding:20px;background:#fff">
+<h2>Test conexión Supabase</h2>
+<div id="msg" style="padding:15px;border-radius:8px;background:#f0f0f0;margin-top:15px">Conectando...</div>
+<script>
+var SURL = 'https://uflikwunrowiygcrngrz.supabase.co';
+var SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmbGlrd3Vucm93aXlnY3JuZ3J6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDU4NzIsImV4cCI6MjA5NTMyMTg3Mn0.2l8epSukKpS1qMDMuxif3xspWIWx-EeN1D4iZlh1ZHA';
+var msg = document.getElementById('msg');
+
+try {
+  var sb = supabase.createClient(SURL, SKEY);
+  msg.textContent = 'Cliente creado. Consultando...';
+  msg.style.background = '#fff3cd';
+
+  sb.from('stock').select('*').limit(3).then(function(result) {
+    if (result.error) {
+      msg.textContent = 'ERROR: ' + result.error.message;
+      msg.style.background = '#f8d7da';
+    } else {
+      msg.textContent = 'OK! ' + result.data.length + ' registros encontrados: ' + JSON.stringify(result.data.map(function(r){ return r.name; }));
+      msg.style.background = '#d4edda';
+    }
+  }).catch(function(e) {
+    msg.textContent = 'CATCH: ' + e.message;
+    msg.style.background = '#f8d7da';
+  });
+
+  setTimeout(function() {
+    if (msg.textContent === 'Cliente creado. Consultando...') {
+      msg.textContent = 'TIMEOUT - La peticion no responde despues de 8 segundos';
+      msg.style.background = '#f8d7da';
+    }
+  }, 8000);
+
+} catch(e) {
+  msg.textContent = 'ERROR CRITICO: ' + e.message;
+  msg.style.background = '#f8d7da';
+}
+</script>
+</body>
+</html>
