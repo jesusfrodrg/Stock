@@ -339,20 +339,38 @@ const CAT_ICONS={'Sofás':'🛋️','Canapés':'🛏️','Colchones':'😴','Sil
 document.getElementById('sale-date').value=new Date().toISOString().split('T')[0];
 
 async function init(){
+  const contenido = document.getElementById('stock-content');
+  contenido.innerHTML='<div class="loading"><span class="spin"></span>Conectando con Supabase...</div>';
+
+  // Test de conexión directo
+  try {
+    const test = await Promise.race([
+      sb.from('stock').select('count', {count:'exact',head:true}),
+      new Promise((_,rej)=>setTimeout(()=>rej(new Error('Timeout de 10 segundos')),10000))
+    ]);
+    if(test.error) throw new Error(test.error.message);
+  } catch(e) {
+    contenido.innerHTML=`<div class="empty" style="color:var(--red);font-size:13px;line-height:1.6">
+      <strong>Error de conexión</strong><br>${e.message}<br><br>
+      URL: ${SUPABASE_URL.substring(0,40)}...
+    </div>`;
+    return;
+  }
+
   const[rs,rv,rt]=await Promise.all([
     sb.from('stock').select('*').order('cat').order('name'),
     sb.from('sales').select('*').order('created_at',{ascending:false}),
     sb.from('stock_tienda').select('*').order('cat').order('name')
   ]);
   if(rs.error){
-    document.getElementById('stock-content').innerHTML=`<div class="empty" style="color:var(--red)">Error almacén: ${rs.error.message}</div>`;
-  } else { stockData=rs.data||[]; }
-  if(rv.error){
-    document.getElementById('ventas-list').innerHTML=`<div class="empty" style="color:var(--red)">Error ventas: ${rv.error.message}</div>`;
-  } else { salesData=rv.data||[]; }
-  if(rt.error){
-    document.getElementById('tienda-content').innerHTML=`<div class="empty" style="color:var(--red)">Error tienda: ${rt.error.message}</div>`;
-  } else { tiendaData=rt.data||[]; }
+    contenido.innerHTML=`<div class="empty" style="color:var(--red)">Error stock: ${rs.error.message}</div>`;
+    return;
+  }
+  if(rv.error) console.warn('Error ventas:',rv.error.message);
+  if(rt.error) console.warn('Error tienda:',rt.error.message);
+  stockData=rs.data||[];
+  salesData=rv.error?[]:rv.data||[];
+  tiendaData=rt.error?[]:rt.data||[];
   renderStock(); renderTienda(); renderSales();
 }
 
