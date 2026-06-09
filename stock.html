@@ -404,7 +404,9 @@ function changeQtyA(id, delta) {
   var nv = p.qty + delta;
   if (nv < 0) { showAlert('No hay más stock.', 'err'); return; }
   p.qty = nv; renderStock();
-  sb.from('stock').update({qty: nv}).eq('id', id);
+  sb.from('stock').update({qty: nv}).eq('id', id).then(function(r) {
+    if (r.error) { showAlert('Error al guardar: ' + r.error.message, 'err'); p.qty -= delta; renderStock(); }
+  });
 }
 function openNewA() {
   editingA = null;
@@ -444,7 +446,9 @@ function changeQtyT(id, delta) {
   var nv = p.qty + delta;
   if (nv < 0) { showAlert('No hay más unidades.', 'err'); return; }
   p.qty = nv; renderTienda();
-  sb.from('stock_tienda').update({qty: nv}).eq('id', id);
+  sb.from('stock_tienda').update({qty: nv}).eq('id', id).then(function(r) {
+    if (r.error) { showAlert('Error al guardar: ' + r.error.message, 'err'); p.qty -= delta; renderTienda(); }
+  });
 }
 function openNewT() {
   editingT = null;
@@ -636,8 +640,19 @@ function guardarVenta(origen, p, tm, qty, client, albaran, date) {
   sb.from('sales').insert([{date:date, albaran:albaran, client:client, product:p.name, product_id:p.id, qty:qty, origen:origenLabel}]).select().single()
   .then(function(result) {
     if (result.error) { showAlert('Error al registrar.', 'err'); btn.disabled = false; btn.textContent = 'Registrar venta'; return; }
-    if (origen === 'almacen') { var nq = p.qty - qty; sb.from('stock').update({qty:nq}).eq('id',p.id); p.qty = nq; }
-    else if (origen === 'tienda' && tm) { var nq2 = tm.qty - qty; sb.from('stock_tienda').update({qty:nq2}).eq('id',tm.id); tm.qty = nq2; renderTienda(); }
+    if (origen === 'almacen') {
+      var nq = p.qty - qty;
+      sb.from('stock').update({qty:nq}).eq('id',p.id).then(function(r){
+        if(r.error) showAlert('Venta guardada pero error actualizando stock: ' + r.error.message,'err');
+      });
+      p.qty = nq;
+    } else if (origen === 'tienda' && tm) {
+      var nq2 = tm.qty - qty;
+      sb.from('stock_tienda').update({qty:nq2}).eq('id',tm.id).then(function(r){
+        if(r.error) showAlert('Venta guardada pero error actualizando tienda: ' + r.error.message,'err');
+      });
+      tm.qty = nq2; renderTienda();
+    }
     salesData.unshift(result.data);
     document.getElementById('sale-client').value = '';
     document.getElementById('sale-albaran').value = '';
