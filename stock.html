@@ -73,6 +73,16 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 .icon-btn:active{background:var(--red-bg)}
 .btn-add-prod{width:100%;padding:14px;border:2px dashed var(--red-border);border-radius:var(--r);background:var(--red-bg);color:var(--red);font-size:14px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;margin-top:6px}
 .btn-add-prod:active{background:var(--red);color:#fff}
+.btn-add-linea{width:100%;padding:10px;border:1.5px dashed var(--red-border);border-radius:var(--rs);background:var(--red-bg);color:var(--red);font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s}
+.btn-add-linea:active{background:var(--red);color:#fff}
+.lineas-list{margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
+.linea-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;display:flex;align-items:center;gap:10px}
+.linea-info{flex:1;min-width:0}
+.linea-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linea-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.linea-qty{font-size:18px;font-weight:700;font-family:"DM Mono",monospace;color:var(--red);min-width:28px;text-align:center}
+.linea-del{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--muted);flex-shrink:0}
+.linea-del:active{background:var(--red-bg);color:var(--red)}
 .btn-pdf{display:flex;align-items:center;gap:7px;padding:10px 16px;background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;white-space:nowrap;box-shadow:0 2px 8px rgba(192,0,26,.3)}
 .toolbar{display:flex;justify-content:flex-end;margin-bottom:14px}
 .tienda-banner{background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;border-radius:var(--r);padding:14px 18px;margin-bottom:14px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 2px 10px rgba(192,0,26,.25)}
@@ -114,6 +124,11 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 .pd-name{font-size:14px;font-weight:500;color:var(--text);flex:1}
 .pd-qty{font-size:15px;font-weight:700;font-family:"DM Mono",monospace}
 .pd-qty.ok{color:var(--green)}.pd-qty.low{color:var(--red)}.pd-qty.zero{color:var(--amber)}
+.pd-stock-row{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.pd-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;display:flex;align-items:center;gap:3px}
+.pd-tag-a{background:#E3EFF9;color:#1A4F7A}
+.pd-tag-t{background:var(--green-bg);color:var(--green)}
+.pd-tag-n{background:var(--amber-bg);color:var(--amber)}
 .pd-empty{padding:14px 12px;font-size:13px;color:var(--muted);text-align:center}
 .search-box{display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:11px 14px;margin-bottom:12px}
 .search-box:focus-within{border-color:var(--red)}
@@ -200,9 +215,12 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
       </div>
       <div class="fgrid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
         <div class="fgroup"><label>Cantidad</label><input type="number" id="sale-qty" value="1" min="1" max="99"></div>
-        <div></div>
+        <div style="display:flex;align-items:flex-end">
+          <button class="btn-add-linea" onclick="addLinea()">＋ Añadir artículo</button>
+        </div>
       </div>
-      <button class="btn-primary" id="sale-btn" onclick="addSale()">Registrar venta</button>
+      <div id="lineas-container"></div>
+      <button class="btn-primary" id="sale-btn" onclick="confirmarVentaMulti()">Registrar venta</button>
     </div>
     <div class="toolbar">
       <button class="btn-pdf" onclick="exportPDF('ventas')">📄 PDF ventas</button>
@@ -522,28 +540,61 @@ function filterProdSearch() {
   var dd = document.getElementById('prod-dropdown');
   var clr = document.getElementById('prod-search-clr');
   clr.style.display = q ? 'flex' : 'none';
-  var matches = q ? stockData.filter(function(p) { return p.name.toLowerCase().indexOf(q) >= 0 || p.cat.toLowerCase().indexOf(q) >= 0; }) : stockData;
-  if (!matches.length) { dd.innerHTML = '<div class="pd-empty">No se encontró ningún artículo</div>'; dd.style.display = 'block'; return; }
+
+  // Combinar almacen y tienda por nombre
+  var allNames = {};
+  stockData.forEach(function(p) {
+    var key = p.name.toLowerCase();
+    if (!allNames[key]) allNames[key] = {name:p.name, cat:p.cat, almacen:null, tienda:null};
+    allNames[key].almacen = p;
+  });
+  tiendaData.forEach(function(t) {
+    var key = t.name.toLowerCase();
+    if (!allNames[key]) allNames[key] = {name:t.name, cat:t.cat, almacen:null, tienda:null};
+    allNames[key].tienda = t;
+  });
+
+  var items = Object.values(allNames);
+  var matches = q ? items.filter(function(i) {
+    return i.name.toLowerCase().indexOf(q) >= 0 || i.cat.toLowerCase().indexOf(q) >= 0;
+  }) : items;
+
+  if (!matches.length) { dd.innerHTML = '<div class="pd-empty">No se encontro ningun articulo</div>'; dd.style.display = 'block'; return; }
+
   var cats = {};
-  matches.forEach(function(p) { if (!cats[p.cat]) cats[p.cat] = []; cats[p.cat].push(p); });
+  matches.forEach(function(i) { if (!cats[i.cat]) cats[i.cat] = []; cats[i.cat].push(i); });
+
   var h = '';
   Object.keys(cats).forEach(function(cat) {
     h += '<div class="pd-cat">' + (CAT_ICONS[cat] || '📦') + ' ' + cat + '</div>';
-    cats[cat].forEach(function(p) {
-      var nc = p.qty === 0 ? 'zero' : p.qty <= 2 ? 'low' : 'ok';
-      var dis = p.qty === 0 ? ' pd-disabled' : '';
-      var onclick = p.qty > 0 ? ' onclick="selectProd(\'' + p.id + '\',\'' + p.name.replace(/'/g, "\\'") + '\',' + p.qty + ')"' : '';
+    cats[cat].forEach(function(item) {
+      var qa = item.almacen ? item.almacen.qty : 0;
+      var qt = item.tienda ? item.tienda.qty : 0;
+      var disponible = qa > 0 || qt > 0;
+      var dis = !disponible ? ' pd-disabled' : '';
+      var pid = item.almacen ? item.almacen.id : (item.tienda ? item.tienda.id : '');
+      var safeName = item.name.replace(/'/g, "APOS");
+      var onclick = disponible ? ' onclick="selectProd(\'' + pid + '\',\'' + safeName + '\')"' : '';
+      var tags = '';
+      if (item.almacen !== null) {
+        var ca = qa === 0 ? 'pd-tag-n' : 'pd-tag-a';
+        tags += '<span class="pd-tag ' + ca + '">🏭 ' + qa + ' ud.</span>';
+      }
+      if (item.tienda !== null) {
+        var ct = qt === 0 ? 'pd-tag-n' : 'pd-tag-t';
+        tags += '<span class="pd-tag ' + ct + '">🏠 ' + qt + ' ud.</span>';
+      }
       h += '<button class="pd-item' + dis + '"' + onclick + '>';
-      h += '<span class="pd-name">' + p.name + '</span>';
-      h += '<span class="pd-qty ' + nc + '">' + p.qty + '</span>';
+      h += '<span class="pd-name">' + item.name + '</span>';
+      h += '<div class="pd-stock-row">' + tags + '</div>';
       h += '</button>';
     });
   });
   dd.innerHTML = h; dd.style.display = 'block';
 }
-function selectProd(id, name, qty) {
+function selectProd(id, name) {
   document.getElementById('sale-product').value = id;
-  document.getElementById('prod-search-input').value = name + '  ·  ' + qty + ' ud.';
+  document.getElementById('prod-search-input').value = name.replace(/APOS/g, "'");
   document.getElementById('prod-search-clr').style.display = 'flex';
   document.getElementById('prod-dropdown').style.display = 'none';
 }
@@ -598,18 +649,31 @@ function addSale() {
   var date = document.getElementById('sale-date').value;
   var productId = document.getElementById('sale-product').value;
   var qty = parseInt(document.getElementById('sale-qty').value) || 1;
-  var p = stockData.find(function(x) { return x.id === productId; });
   if (!client) { showAlert('Indica el nombre del cliente.', 'err'); return; }
-  if (!albaran) { showAlert('Introduce el número de albarán.', 'err'); return; }
+  if (!albaran) { showAlert('Introduce el numero de albaran.', 'err'); return; }
   if (!date) { showAlert('Selecciona la fecha.', 'err'); return; }
-  if (!p) { showAlert('Selecciona un artículo válido.', 'err'); return; }
-  var tiendaMatch = tiendaData.find(function(t) { return t.name.toLowerCase() === p.name.toLowerCase(); });
-  var hayA = p.qty >= qty;
+  if (!productId) { showAlert('Selecciona un articulo.', 'err'); return; }
+  // Buscar en almacen y tienda
+  var p = stockData.find(function(x) { return x.id === productId; });
+  var tiendaMatch = null;
+  if (p) {
+    tiendaMatch = tiendaData.find(function(t) { return t.name.toLowerCase() === p.name.toLowerCase(); });
+  } else {
+    // El id puede ser de tienda
+    var tItem = tiendaData.find(function(t) { return t.id === productId; });
+    if (tItem) {
+      tiendaMatch = tItem;
+      p = stockData.find(function(x) { return x.name.toLowerCase() === tItem.name.toLowerCase(); });
+      if (!p) p = {id: tItem.id, name: tItem.name, cat: tItem.cat, qty: 0};
+    }
+  }
+  if (!p) { showAlert('Selecciona un articulo valido.', 'err'); return; }
+  var hayA = p && p.qty >= qty;
   var hayT = tiendaMatch && tiendaMatch.qty >= qty;
   if (hayA && hayT) { openOrigenModal(p, tiendaMatch, qty, client, albaran, date); return; }
   if (hayA) { guardarVenta('almacen', p, tiendaMatch, qty, client, albaran, date); return; }
   if (hayT) { guardarVenta('tienda', p, tiendaMatch, qty, client, albaran, date); return; }
-  showAlert('Stock insuficiente — Almacén: ' + p.qty + ' ud. / Tienda: ' + (tiendaMatch ? tiendaMatch.qty : 0) + ' ud.', 'err');
+  showAlert('Stock insuficiente — Almacen: ' + (p ? p.qty : 0) + ' ud. / Tienda: ' + (tiendaMatch ? tiendaMatch.qty : 0) + ' ud.', 'err');
 }
 
 function openOrigenModal(p, tm, qty, client, albaran, date) {
