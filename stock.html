@@ -75,6 +75,13 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
 .btn-add-prod:active{background:var(--red);color:#fff}
 .btn-add-linea{width:100%;padding:10px;border:1.5px dashed var(--red-border);border-radius:var(--rs);background:var(--red-bg);color:var(--red);font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;transition:all .15s}
 .btn-add-linea:active{background:var(--red);color:#fff}
+.linea-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);padding:9px 11px;margin-bottom:8px}
+.linea-info{flex:1;min-width:0}
+.linea-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.linea-qty{font-size:12px;color:var(--muted);font-weight:500}
+.linea-del{width:28px;height:28px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;font-size:13px;flex-shrink:0}
+.linea-del:active{background:var(--red-bg)}
+.lineas-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 8px}
 .lineas-list{margin-bottom:12px;display:flex;flex-direction:column;gap:8px}
 .linea-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;display:flex;align-items:center;gap:10px}
 .linea-info{flex:1;min-width:0}
@@ -216,7 +223,7 @@ body{font-family:"DM Sans",sans-serif;background:var(--bg);color:var(--text);min
       <div class="fgrid" style="grid-template-columns:1fr 1fr;margin-bottom:12px">
         <div class="fgroup"><label>Cantidad</label><input type="number" id="sale-qty" value="1" min="1" max="99"></div>
         <div style="display:flex;align-items:flex-end">
-          <button class="btn-add-linea" onclick="addLinea()">＋ Añadir artículo</button>
+          <button class="btn-add-linea" onclick="addSale()">＋ Añadir artículo al albarán</button>
         </div>
       </div>
       <div id="lineas-container"></div>
@@ -299,6 +306,8 @@ var editingT = null;
 var activeCatA = 'Todos';
 var activeCatT = 'Todos';
 var pendingSale = null;
+var pendingLinea = null;
+var lineasVenta = [];
 
 var CAT_ICONS = {'Sofás':'🛋️','Canapés':'🛏️','Colchones':'😴','Sillas':'🪑','Otros':'📦'};
 var CATS = ['Todos','Sofás','Canapés','Colchones','Sillas'];
@@ -644,88 +653,163 @@ function deleteSale(id) {
 }
 
 function addSale() {
-  var client = (document.getElementById('sale-client').value || '').trim();
-  var albaran = (document.getElementById('sale-albaran').value || '').trim();
-  var date = document.getElementById('sale-date').value;
-  var productId = document.getElementById('sale-product').value;
+  var pid = document.getElementById('sale-product').value;
   var qty = parseInt(document.getElementById('sale-qty').value) || 1;
-  if (!client) { showAlert('Indica el nombre del cliente.', 'err'); return; }
-  if (!albaran) { showAlert('Introduce el numero de albaran.', 'err'); return; }
-  if (!date) { showAlert('Selecciona la fecha.', 'err'); return; }
-  if (!productId) { showAlert('Selecciona un articulo.', 'err'); return; }
-  // Buscar en almacen y tienda
-  var p = stockData.find(function(x) { return x.id === productId; });
-  var tiendaMatch = null;
+  if (!pid) { showAlert('Selecciona un articulo.', 'err'); return; }
+
+  var p = stockData.find(function(x) { return x.id === pid; });
+  var tm = null;
   if (p) {
-    tiendaMatch = tiendaData.find(function(t) { return t.name.toLowerCase() === p.name.toLowerCase(); });
+    tm = tiendaData.find(function(t) { return t.name.toLowerCase() === p.name.toLowerCase(); });
   } else {
-    // El id puede ser de tienda
-    var tItem = tiendaData.find(function(t) { return t.id === productId; });
+    var tItem = tiendaData.find(function(t) { return t.id === pid; });
     if (tItem) {
-      tiendaMatch = tItem;
+      tm = tItem;
       p = stockData.find(function(x) { return x.name.toLowerCase() === tItem.name.toLowerCase(); });
       if (!p) p = {id: tItem.id, name: tItem.name, cat: tItem.cat, qty: 0};
     }
   }
-  if (!p) { showAlert('Selecciona un articulo valido.', 'err'); return; }
-  var hayA = p && p.qty >= qty;
-  var hayT = tiendaMatch && tiendaMatch.qty >= qty;
-  if (hayA && hayT) { openOrigenModal(p, tiendaMatch, qty, client, albaran, date); return; }
-  if (hayA) { guardarVenta('almacen', p, tiendaMatch, qty, client, albaran, date); return; }
-  if (hayT) { guardarVenta('tienda', p, tiendaMatch, qty, client, albaran, date); return; }
-  showAlert('Stock insuficiente — Almacen: ' + (p ? p.qty : 0) + ' ud. / Tienda: ' + (tiendaMatch ? tiendaMatch.qty : 0) + ' ud.', 'err');
+  if (!p) { showAlert('Articulo no valido.', 'err'); return; }
+
+  var qa = p.qty || 0;
+  var qt = tm ? tm.qty : 0;
+  if (qa < qty && qt < qty) {
+    showAlert('Stock insuficiente — Almacen: ' + qa + ' ud. / Tienda: ' + qt + ' ud.', 'err');
+    return;
+  }
+
+  if (qa >= qty && qt >= qty) {
+    pendingLinea = {p:p, tm:tm, qty:qty};
+    openOrigenModal(p, tm, qty);
+    return;
+  }
+  var origen = qa >= qty ? 'almacen' : 'tienda';
+  agregarLinea(p, tm, qty, origen);
 }
 
-function openOrigenModal(p, tm, qty, client, albaran, date) {
-  pendingSale = {p: p, tm: tm, qty: qty, client: client, albaran: albaran, date: date};
-  var h = '<div class="origen-subtitle">Venta de <strong>' + qty + ' × ' + p.name + '</strong> para <strong>' + client + '</strong></div>';
-  h += '<div class="origen-subtitle" style="margin-bottom:16px">Hay stock en los dos sitios. ¿Desde dónde se descuenta?</div>';
-  h += '<button class="origen-btn" onclick="confirmarOrigen(\'almacen\')">';
-  h += '<span class="origen-icon">🏭</span><div class="origen-info"><div class="origen-name">Stock Almacén</div><div class="origen-stock origen-green">' + p.qty + ' ud. disponibles</div></div>';
+function openOrigenModal(p, tm, qty) {
+  var h = '<div class="origen-subtitle">Articulo <strong>' + qty + ' x ' + p.name + '</strong></div>';
+  h += '<div class="origen-subtitle" style="margin-bottom:16px">Hay stock en los dos sitios. De donde se descuenta?</div>';
+  h += '<button class="origen-btn" onclick="confirmarOrigenLinea(\'almacen\')">';
+  h += '<span class="origen-icon">🏭</span><div class="origen-info"><div class="origen-name">Stock Almacen</div><div class="origen-stock origen-green">' + p.qty + ' ud. disponibles</div></div>';
   h += '<span class="origen-arrow">→</span></button>';
-  h += '<button class="origen-btn" onclick="confirmarOrigen(\'tienda\')">';
+  h += '<button class="origen-btn" onclick="confirmarOrigenLinea(\'tienda\')">';
   h += '<span class="origen-icon">🏠</span><div class="origen-info"><div class="origen-name">Stock Tienda</div><div class="origen-stock origen-green">' + tm.qty + ' ud. disponibles</div></div>';
   h += '<span class="origen-arrow">→</span></button>';
-  h += '<button class="origen-ninguno" onclick="confirmarOrigen(\'ninguno\')">Solo registrar, sin descontar stock</button>';
   document.getElementById('origen-body').innerHTML = h;
   document.getElementById('modal-origen').classList.add('open');
 }
 
-function confirmarOrigen(origen) {
+function confirmarOrigenLinea(origen) {
   document.getElementById('modal-origen').classList.remove('open');
-  var s = pendingSale;
-  guardarVenta(origen, s.p, s.tm, s.qty, s.client, s.albaran, s.date);
+  var l = pendingLinea;
+  agregarLinea(l.p, l.tm, l.qty, origen);
+  pendingLinea = null;
 }
 
-function guardarVenta(origen, p, tm, qty, client, albaran, date) {
+function agregarLinea(p, tm, qty, origen) {
+  lineasVenta.push({
+    id: 'L' + Date.now() + Math.floor(Math.random()*1000),
+    productId: p.id,
+    tiendaId: tm ? tm.id : null,
+    name: p.name,
+    qty: qty,
+    origen: origen
+  });
+  document.getElementById('sale-product').value = '';
+  document.getElementById('prod-search-input').value = '';
+  document.getElementById('sale-qty').value = '1';
+  clearProdSearch();
+  renderLineas();
+  showAlert(qty + ' x ' + p.name + ' anadido al albaran.', 'ok');
+}
+
+function renderLineas() {
+  var cont = document.getElementById('lineas-container');
+  if (!lineasVenta.length) { cont.innerHTML = ''; return; }
+  var h = '<div class="lineas-title">Articulos en este albaran (' + lineasVenta.length + ')</div>';
+  lineasVenta.forEach(function(l) {
+    var origenIco = l.origen === 'almacen' ? '🏭' : '🏠';
+    h += '<div class="linea-item">';
+    h += '<div class="linea-info"><div class="linea-name">' + origenIco + ' ' + l.name + '</div><div class="linea-qty">' + l.qty + ' unidades</div></div>';
+    h += '<button class="linea-del" onclick="quitarLinea(\'' + l.id + '\')">✕</button>';
+    h += '</div>';
+  });
+  cont.innerHTML = h;
+}
+
+function quitarLinea(id) {
+  lineasVenta = lineasVenta.filter(function(l) { return l.id !== id; });
+  renderLineas();
+}
+
+function confirmarVentaMulti() {
+  var client = (document.getElementById('sale-client').value || '').trim();
+  var albaran = (document.getElementById('sale-albaran').value || '').trim();
+  var date = document.getElementById('sale-date').value;
+
+  if (!client) { showAlert('Indica el nombre del cliente.', 'err'); return; }
+  if (!albaran) { showAlert('Introduce el numero de albaran.', 'err'); return; }
+  if (!date) { showAlert('Selecciona la fecha.', 'err'); return; }
+
+  // Si hay un articulo en el buscador sin anadir, lo anadimos primero
+  var pid = document.getElementById('sale-product').value;
+  if (pid && lineasVenta.length === 0) {
+    addSale();
+    setTimeout(confirmarVentaMulti, 50);
+    return;
+  }
+
+  if (!lineasVenta.length) { showAlert('Anade al menos un articulo al albaran.', 'err'); return; }
+
   var btn = document.getElementById('sale-btn');
   btn.disabled = true; btn.textContent = 'Guardando...';
-  var origenLabel = origen === 'almacen' ? 'Almacén' : origen === 'tienda' ? 'Tienda' : 'Sin descontar';
-  sb.from('sales').insert([{date:date, albaran:albaran, client:client, product:p.name, product_id:p.id, qty:qty, origen:origenLabel}]).select().single()
-  .then(function(result) {
-    if (result.error) { showAlert('Error al registrar.', 'err'); btn.disabled = false; btn.textContent = 'Registrar venta'; return; }
-    if (origen === 'almacen') {
-      var nq = p.qty - qty;
-      sb.from('stock').update({qty:nq}).eq('id',p.id).then(function(r){
-        if(r.error) showAlert('Venta guardada pero error actualizando stock: ' + r.error.message,'err');
-      });
-      p.qty = nq;
-    } else if (origen === 'tienda' && tm) {
-      var nq2 = tm.qty - qty;
-      sb.from('stock_tienda').update({qty:nq2}).eq('id',tm.id).then(function(r){
-        if(r.error) showAlert('Venta guardada pero error actualizando tienda: ' + r.error.message,'err');
-      });
-      tm.qty = nq2; renderTienda();
+
+  var rows = lineasVenta.map(function(l) {
+    var origenLabel = l.origen === 'almacen' ? 'Almacen' : 'Tienda';
+    return {date:date, albaran:albaran, client:client, product:l.name, product_id:l.productId, qty:l.qty, origen:origenLabel};
+  });
+
+  sb.from('sales').insert(rows).select().then(function(result) {
+    if (result.error) {
+      showAlert('Error al registrar: ' + result.error.message, 'err');
+      btn.disabled = false; btn.textContent = 'Registrar venta';
+      return;
     }
-    salesData.unshift(result.data);
+    // Descontar stock de cada linea
+    lineasVenta.forEach(function(l) {
+      if (l.origen === 'almacen') {
+        var p = stockData.find(function(x) { return x.id === l.productId; });
+        if (p) {
+          var nq = p.qty - l.qty;
+          sb.from('stock').update({qty:nq}).eq('id',p.id).then(function(r){
+            if(r.error) showAlert('Error actualizando stock de ' + p.name,'err');
+          });
+          p.qty = nq;
+        }
+      } else if (l.origen === 'tienda' && l.tiendaId) {
+        var t = tiendaData.find(function(x) { return x.id === l.tiendaId; });
+        if (t) {
+          var nq2 = t.qty - l.qty;
+          sb.from('stock_tienda').update({qty:nq2}).eq('id',t.id).then(function(r){
+            if(r.error) showAlert('Error actualizando tienda de ' + t.name,'err');
+          });
+          t.qty = nq2;
+        }
+      }
+    });
+    salesData = result.data.concat(salesData);
+    var totalArticulos = lineasVenta.length;
+    var totalUds = lineasVenta.reduce(function(s,l){return s+l.qty;},0);
+    lineasVenta = [];
     document.getElementById('sale-client').value = '';
     document.getElementById('sale-albaran').value = '';
     document.getElementById('sale-qty').value = '1';
     document.getElementById('sale-date').value = new Date().toISOString().split('T')[0];
-    clearProdSearch();
-    renderSales(); renderStock();
+    renderLineas();
+    renderSales(); renderStock(); renderTienda();
     btn.disabled = false; btn.textContent = 'Registrar venta';
-    showAlert('Venta registrada — ' + qty + '×' + p.name + ' para ' + client + ' (' + origenLabel + ').', 'ok');
+    showAlert('Albaran ' + albaran + ' registrado — ' + totalArticulos + ' articulo(s), ' + totalUds + ' unidades para ' + client + '.', 'ok');
   });
 }
 
