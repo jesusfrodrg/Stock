@@ -624,24 +624,58 @@ function renderSales() {
            (s.albaran||'').toLowerCase().indexOf(q) >= 0 ||
            (s.product||'').toLowerCase().indexOf(q) >= 0;
   }) : salesData;
-  if (!salesData.length) { el.innerHTML = '<div class="empty">No hay ventas todavía.</div>'; return; }
+  if (!salesData.length) { el.innerHTML = '<div class="empty">No hay ventas todavia.</div>'; return; }
   if (!filtered.length) { el.innerHTML = '<div class="empty">Sin resultados para "' + q + '".</div>'; return; }
-  var h = '';
+
+  // Agrupar por albaran + cliente + fecha (manteniendo orden de aparicion)
+  var groups = [];
+  var groupMap = {};
   filtered.forEach(function(s) {
-    var d = s.date ? s.date.split('-').reverse().join('/') : '';
+    var key = (s.albaran||'') + '|' + (s.client||'') + '|' + (s.date||'');
+    if (!groupMap[key]) {
+      groupMap[key] = {albaran:s.albaran, client:s.client, date:s.date, items:[]};
+      groups.push(groupMap[key]);
+    }
+    groupMap[key].items.push(s);
+  });
+
+  var h = '';
+  groups.forEach(function(g) {
+    var d = g.date ? g.date.split('-').reverse().join('/') : '';
+    var totalUds = g.items.reduce(function(s,i){return s+i.qty;},0);
     h += '<div class="venta-card">';
     h += '<div class="venta-top">';
-    h += '<div><div class="venta-client">' + (s.client||'') + '</div><span class="venta-alb">' + (s.albaran||'') + '</span></div>';
+    h += '<div><div class="venta-client">' + (g.client||'') + '</div><span class="venta-alb">' + (g.albaran||'') + '</span></div>';
     h += '<span class="venta-date">' + d + '</span>';
-    h += '</div><div class="venta-body"><div class="venta-info">';
-    h += '<span class="venta-chip">' + (s.product||'') + '</span>';
-    h += '<span class="venta-chip qty">' + s.qty + ' ud.</span>';
-    if (s.origen) h += '<span class="venta-chip origen">' + s.origen + '</span>';
+    h += '</div><div class="venta-body">';
+    h += '<div class="venta-info">';
+    g.items.forEach(function(s) {
+      var origenIco = s.origen === 'Almacen' || s.origen === 'Almacén' ? '🏭' : s.origen === 'Tienda' ? '🏠' : '';
+      h += '<span class="venta-chip">' + origenIco + ' ' + (s.product||'') + ' &times; ' + s.qty + '</span>';
+    });
+    h += '<span class="venta-chip qty">' + totalUds + ' ud. total</span>';
     h += '</div>';
-    h += '<button class="btn-del-venta" onclick="deleteSale(' + s.id + ')">🗑️ Eliminar venta entregada</button>';
+    if (g.items.length > 1) {
+      h += '<button class="btn-del-venta" onclick="deleteAlbaran(\'' + (g.albaran||'').replace(/'/g,"\\'") + '\',\'' + (g.client||'').replace(/'/g,"\\'") + '\',\'' + (g.date||'') + '\')">🗑️ Eliminar albaran completo (' + g.items.length + ' articulos)</button>';
+    } else {
+      h += '<button class="btn-del-venta" onclick="deleteSale(' + g.items[0].id + ')">🗑️ Eliminar venta entregada</button>';
+    }
     h += '</div></div>';
   });
   el.innerHTML = h;
+}
+
+function deleteAlbaran(albaran, client, date) {
+  if (!confirm('Eliminar todo el albaran ' + albaran + '?\nEl stock NO se modificara.')) return;
+  var ids = salesData.filter(function(s) {
+    return s.albaran === albaran && s.client === client && s.date === date;
+  }).map(function(s) { return s.id; });
+  sb.from('sales').delete().in('id', ids).then(function(r) {
+    if (r.error) { showAlert('Error al eliminar.', 'err'); return; }
+    salesData = salesData.filter(function(s) { return ids.indexOf(s.id) === -1; });
+    renderSales(); renderStock();
+    showAlert('Albaran ' + albaran + ' eliminado.', 'ok');
+  });
 }
 
 function deleteSale(id) {
